@@ -1,42 +1,115 @@
 # Hands-on Session 5 - Raman and Infrared Spectra with the Time-Dependent Self-Consistent Harmonic Approximation
 
-In the previous tutorial, you learned how to compute the spectral function by integrating the bubble in Fourier space, using the dynamical ansatz formulated by [Bianco et al., Physical Review B, 96, 014111, 2017](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.96.014111). Here, we will instead employ the Lanczos algorithm within the Time-Dependent Self-Consistent Harmonic Approximation (TD-SCHA) [Monacelli, Mauri, Physical Review B 103, 104305, 2021](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.103.104305).
+
+## Theoretical background
+
+This tutorial focuses on the computation of dynamical properties of materials.
+The key quantity which is measured by experiments is the *dynamical response function* $\chi(\omega)$.
+The response function probes how the material responds to a time-dependent external perturbation.
+We can model the result of any experiment as: the material is in equilibrium for $t < t_0$. Then, at $t_0$ a new perturbation is turned on,
+and we measure a property $A$ of the material at a certain time $t$. This response will be the convolution of the perturbation at all times between $t_0$ and $t$, weighted by how the perturbation propagates in time, which is precisely the response function $\chi(t-t')$:
+$$
+A(t) = A_0 + \int_{t_0}^t dt' \chi(t - t') F(t')
+$$
+where $F(t')$ is the external time-dependent perturbation, and $A_0$ is the value of the property $A$ in equilibrium.
+Alternatively, by passing in Fourier space, the convolution becomes a simple product:
+$$
+A(\omega) = A_0 + \chi(\omega) F(\omega)
+o$$
+
+This is very general, and it applies to any experiment. In this tutorial, we focus on IR and Raman spectroscopy.
+For the case of IR, the perturbation is the electric field of the light, which interacts with the material by generating an oscillating dipole. The response of the material is the *emitted* (or absorbed) electric field, which is related to how the dipole moment of the material oscillates in time.
+So the observable $A(t)$ is the dipole moment of the material, and the perturbation $F(t)$ is the amplitude of the electric field of the light.
+
+The Kubo equation for the response function is
+$$
+\chi(t) = \frac{i}{\hbar}\theta(t)\left<M(t)M(0)\right>
+$$
+where $\hat M(t)$ is the dipole moment operator in the Heisenberg picture, and $\left<\cdot\right>$ is the quantum average at finite temperature.
+The SSCHA can compute the response function $\chi(t)$ by using the TD-SCHA formalism. Here we will use the Lanczos algorithm to compute the response function in Fourier space, which is more efficient than computing it in time and then Fourier transforming it.
+
+The first step is to convert the diopole operator in phonons creation and annihilation operators. To this aim, we can approximate the dipole moment as a linear function of the atomic displacements $\hat u$:
+$$
+\hat M(t) = \left.\frac{\partial M}{\partial u}\right|_{u = 0} \hat u(t) + O(u^2)
+$$
+The derivative of the dipole moment with respect to the atomic displacements is precisely the Born effective charge:
+$$
+Z^i_{\alpha\beta} = \frac{\partial M_\alpha}{\partial u^i_\beta} = \frac{\partial^2 \mathcal E}{\partial u^i_\beta \partial E_\alpha}
+$$
+where $E_\alpha$ is the electric field in the $\alpha$ Cartesian direction, $u^i_\beta$ is the displacement of atom $i$ in the $\beta$ Cartesian direction, and $\mathcal E$ is the total energy of the system (Born-Oppenheimer).
+Using this in the expression of the suscieptibility, we obtain:
+$$
+\chi_{\text{IR}\alpha}(t) = \sum_{ij}\sum_{\beta\gamma} \frac{Z^i_{\alpha\beta} Z^j_{\alpha\gamma}}_{\sqrt{m_i m_j}}\sqrt{m_im_j} \left<\hat u^i_\beta(t) \hat u^j_\gamma(0)\right>
+$$
+The last term is the so-called phonon Green's function, which represent the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
+$$
+G^{ij}_{\alpha\beta}(t) = \sqrt{m_i m_j}\left<\hat u_\alpha^i(t) \hat u^j_\beta(0)\right>
+$$
+
+Analogously, the Raman spectrum is related to the response of the material to two electric fields, which interact with the material by generating an oscillating polarizability. The observable $A(t)$ is the polarizability of the material, and the perturbation $F(t)$ is the amplitude of the two overlapping electric fields which interferee within the material. The Raman susceptibility can be written as:
+$$
+\chi_\text{Raman}(t) = \left<\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right>
+$$
+where $\hat \alpha_{\alpha\beta}$ is the polarizability operator, which can be approximated as a linear function of the atomic displacements:
+$$
+\hat \alpha_{\alpha\beta}(t) = \left.\frac{\partial \alpha_{\alpha\beta}}{\partial u^i_\gamma}\right|_{u = 0} \hat u^i_\gamma(t) + O(u^2)
+$$
+$$
+\Xi^i_{\alpha\beta\gamma} = \frac{\partial \alpha_{\alpha\beta}}{\partial u^i_\gamma} = \frac{\partial^3 \mathcal E}{\partial u^i_\gamma \partial E_\alpha \partial E_\beta}
+$$
+where $\Xi^i_{\alpha\beta\gamma}$ is the Raman tensor, which is the third derivative of the total energy (Born-Oppenheimer) with respect to the atomic displacements and the two electric fields (incoming-outgoing).
+
+Notably, the Raman requires two electric fields because it is a scattering, where incoming and outcoming radiation are different. The IR instead is an absorption/emission, where incoming and outcoming radiation are the same.
+
+The Raman suscieptibility is then:
+$$
+\chi_\text{Raman}(t) =  \left<\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right> = \sum_{ij}\sum_{\gamma\delta} \frac{\Xi^i_{\alpha\beta\gamma} \Xi^j_{\alpha\beta\delta}}{\sqrt{m_i m_j}}\sqrt{m_im_j} \left<\hat u^i_\gamma(t) \hat u^j_\delta(0)\right>
+$$
+
+Also here, the last term is the phonon Green's function, which represent the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
+Therefore, to compute the IR and Raman spectra, we need to compute the phonon Green's function.
+Going in Fourier space, we get
+$$
+\chi_{\text{IR}\,\alpha}(\omega) = \sum_{ij}\sum_{\beta\gamma} \frac{Z^i_{\alpha\beta} Z^j_{\alpha\gamma}}{\sqrt{m_i m_j}}\sqrt{m_im_j} G^{ij}_{\beta\gamma}(\omega)
+$$
+$$
+\chi_{\text{Raman}\,\alpha\beta}(\omega) = \sum_{ij}\sum_{\gamma\delta} \frac{\Xi^i_{\alpha\beta\gamma} \Xi^j_{\alpha\beta\delta}}{\sqrt{m_i m_j}}\sqrt{m_im_j} G^{ij}_{\gamma\delta}(\omega)
+$$
+
+### The phonon Green's function
+
+The phonon Green's function can be computed within the TD-SCHA. In general, we can write the Green's function as a non-interacting green function plus a self-energy:
+$$
+G^{-1}(\omega) = G_0^{-1}(\omega) - \Pi(\omega)
+$$
+where $G_0(\omega)$ is a non-interacting Green's function for *harmonic*-like phonons, while $\Pi(\omega)$ is the phonon self-energy, which depends on the frequency.
+In the TD-SCHA theory, the non-interacting Green's function is defined as the Green's function of the auxiliary SSCHA harmonic Hamiltonian.
+
+$$
+G_0^{-1}(\omega) = I\omega^2 - D_\text{SSCHA}
+$$
+where $I$ is the identity matrix and $D_\text{SSCHA}$ is the dynamical matrix of the SSCHA Hamiltonian.
+
+The self-energy $\Pi(\omega)$ correspond to the same expression derived for the Free energy Hessian; see [Bianco et al., Physical Review B, 96, 014111, 2017](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.96.014111).
+$$
+\Pi_{ab}(\omega) = -\frac 12\sum_{cd\mu\nu} \overset{(3)}{\Phi}_{acd} \Lambda^{cd}_{\mu\nu}(\omega)\left[ 1 +\frac 12 \overset{(4)}{\Phi}\Lambda(\omega)\right]^{-1} \overset{(3)}{\Phi}_{\nu b}
+$$
+where $\Lambda^{cd}_{\mu\nu}(\omega)$ is the Fourier transform of the two-phonon propagator, which can be computed from the equilibrium non interacting Green's function $G_0(\omega)$ as:
+$$
+\Lambda^{ijlm}_{\alpha\beta\gamma\delta}(t) = \sqrt{m_i m_j m_l m_m}\left<\hat u^i_\alpha(t) \hat u^j_\beta(t) \hat u^l_\gamma(0) \hat u^m_\delta(0)\right>_0
+$$
+
+Computing the full inversion of the self-energy for every value of the frequency is computationally extremely expensive.
+It is possible, with an efficient algorithm (Lanczos), to prove that the Green function can be obtained by inverting a special matrix, see [Monacelli, Mauri, Physical Review B 103, 104305, 2021](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.103.104305).
+
+In this tutorial, we will use this Lanczos algorithm to compute the phonon Green's function and, consequently, the IR spectrum of CsPbI3.
 
 For this, we need the package `tdscha` (it is recommended to configure it with the Julia speedup to run faster; see the installation guide).
 
-## Computing the IR Signal in Ice
+## The Phonon Green's function
 
-We use an already computed ensemble of phase XI of ice (low-temperature ice at ambient pressure, a prototype of standard cubic ice) to obtain the IR spectrum.
-
-Inside the `data` directory, we find an already calculated ensemble of ice XI at 0 K with the corresponding original dynamical matrix `start_dyn_ice1` used to generate the ensemble and the dynamical matrix `final_dyn_ice1` after the SSCHA minimization.
-
-### An Introduction
-
-The infrared spectrum is related to the dipole-dipole response function:
-
-$$
-\chi_{MM}(\omega) = \int_{-\infty}^{\infty}dt e^{-i\omega t}\left<M(t) M(0)\right>
-$$
-
-where the average $\left<M(t)M(0)\right>$ is the quantum average at finite temperature.
-
-Exploiting the TD-SCHA formalism introduced in the previous lecture, this response function can be written as:
-
-$$
-\chi_{MM}(\omega) = \boldsymbol{r}(M) \boldsymbol{G}(\omega) \boldsymbol{q}(M)
-$$
-
-where $\boldsymbol{G}(\omega)$ is the TD-SCHA Green's function, while $\boldsymbol{r}$ and $\boldsymbol{q}$ are vectors that quantify the perturbation and response, respectively.
-
-In particular, if we neglect two-phonon effects (nonlinear coupling with light), we obtain:
-
-$$
-\chi_{MM}(\omega) = \sum_{ab}\frac{\mathcal Z_{\alpha a} {\mathcal Z}_{\alpha b}}{\sqrt{m_am_b}} G_{ab}(\omega)
-$$
-
-where ${\mathcal Z}_{\alpha a}$ is the Born effective charge of atom $a$ with polarization $\alpha$, and $G_{ab}(\omega)$ is the one-phonon Green's function (its imaginary part is precisely the spectral function).
-
-Indeed, we need to compute the effective charges. This can be done directly by Quantum ESPRESSO using linear response theory (ph.x).
+We need to first relax a complete SSCHA calculation, exactly as for the free energy hessian.
+You find the script `sscha_relax.py`, which obtain the CsPbI3 structure and final dynamical matrix at 500 K.
 
 > **Exercise:**
 >
