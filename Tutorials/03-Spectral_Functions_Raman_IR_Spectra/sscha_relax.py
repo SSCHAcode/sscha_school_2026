@@ -11,7 +11,7 @@ TEMPERATURE = 450 # K
 NQIRR = 4
 START_DYN = "../../Materials/CsPbI3_cubic_harmonic_"
 POTENTIAL = "../../Materials/GAP_1.xml"
-N_CONFIGS = 1024
+N_CONFIGS = 256
 
 
 def sscha_relax(temperature = TEMPERATURE):
@@ -29,8 +29,8 @@ def sscha_relax(temperature = TEMPERATURE):
 
     # Run the sscha
     ensemble = sscha.Ensemble.Ensemble(dyn, temperature)
-    minimizer = sscha.SchaMinimizer.SchaMinimizer(ensemble)
-    relax = sscha.Relax.Relax(minimizer, calc, N_configs = N_CONFIGS)
+    minimizer = sscha.SchaMinimizer.SSCHA_Minimizer(ensemble)
+    relax = sscha.Relax.SSCHA(minimizer, calc, N_configs = N_CONFIGS)
 
     relax.relax()
 
@@ -38,8 +38,12 @@ def sscha_relax(temperature = TEMPERATURE):
     relax.minim.ensemble.save_bin("data", 1)
 
 
+if __name__ == "__main__":
+    # Change the working directory to the one containing this script
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# Change the working directory to the one containing this script
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # Run the sscha relaxation
+    sscha_relax()
+    
 
 

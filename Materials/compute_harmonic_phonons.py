@@ -24,6 +24,7 @@ structure.build_masses()
 phonons = CC.Phonons.compute_phonons_finite_displacements(structure, calc,
                                                           supercell = (2, 2, 2)
                                                           )
+phonons.Symmetrize()
 
 # Save the phonons in quantum-espresso format
 phonons_path = os.path.join(current_dir, "CsPbI3_cubic_harmonic_")
