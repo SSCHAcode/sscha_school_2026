@@ -44,6 +44,7 @@ def sscha_relax(temperature = TEMPERATURE):
 
     # Save the final ensemble
     relax.minim.ensemble.save_bin("data", 1)
+    relax.minim.dyn.save_qe("sscha_auxiliary_dyn_")
 
 
 if __name__ == "__main__":
