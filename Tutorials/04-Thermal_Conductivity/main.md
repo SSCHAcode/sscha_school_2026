@@ -21,7 +21,7 @@ The basic workflow is:
    - the smearing parameter used in the phonon self-energy calculation, which is closely related to the size of the **q**-point grid when using an *adaptive* smearing scheme;
    - the density of frequency sampling controlled by the `ne` parameter when using the Green-Kubo method.
 
-## Lattice Thermal Conductivity of CsPbI~3~
+## Lattice Thermal Conductivity of CsPbI<sub>3</sub>
 
 We first calculate the second- and third-order force constants.
 
@@ -35,7 +35,6 @@ from ase import Atoms
 from ase.eos import calculate_eos
 from ase.filters import ExpCellFilter
 from ase.optimize import QuasiNewton
-from ase.phonons import Phonons as AsePhonons
 from ase.units import kJ
 from quippy.potential import Potential
 
@@ -549,4 +548,22 @@ tc.write_lineshape(
 
 Temperature-dependent transport properties, such as phonon lifetimes, heat capacities, and phonon lineshapes, are stored as dictionaries with keys corresponding to the temperature `T` formatted as `format(T, ".1f")`. The example above writes the phonon spectral function at $\Gamma$.
 
-Other relevant quantities, such as phonon frequencies and group velocities, can also be accessed from the `ThermalConductivity` object. In addition, the object provides built-in functions for calculating the phonon density of states, phonon spectral conductivity, and phonon Grüneisen parameters in cubic systems.
+Other relevant quantities, such as phonon frequencies and group velocities, can also be accessed from the `ThermalConductivity` object. In addition, the object provides built-in functions for calculating the phonon density of states, phonon spectral conductivity, and phonon Grüneisen parameters in cubic systems
+
+## Exercise
+
+Estimate the lattice thermal conductivity of CsPbI$_3$ in the cubic $Pm\bar{3}m$ phase.
+
+Before computing the thermal conductivity, first check the dynamical stability of this phase. In particular, determine the temperature range in which the cubic phase is dynamically stable and therefore the thermal-conductivity calculation is physically meaningful.
+
+Then compare the lattice thermal conductivity obtained using:
+
+- the single relaxation time approximation (**SRTA**), and
+- the Green-Kubo (**GK**) approach.
+
+Discuss the following points:
+
+1. At what temperature does the cubic $Pm\bar{3}m$ phase become dynamically stable?
+2. How does the thermal conductivity depend on temperature?
+3. Do the SRTA and GK results agree? If not, which method gives a larger thermal conductivity and why?
+4. What does the comparison between SRTA and GK tell you about the degree of anharmonicity in cubic CsPbI$_3$?
