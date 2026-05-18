@@ -552,7 +552,7 @@ Other relevant quantities, such as phonon frequencies and group velocities, can 
 
 ## Exercise
 
-Estimate the lattice thermal conductivity of CsPbI$_3$ in the cubic $Pm\bar{3}m$ phase.
+Estimate the lattice thermal conductivity of CsPbI<sub>3</sub> in the cubic $Pm\bar{3}m$ phase.
 
 Before computing the thermal conductivity, first check the dynamical stability of this phase. In particular, determine the temperature range in which the cubic phase is dynamically stable and therefore the thermal-conductivity calculation is physically meaningful.
 
@@ -566,4 +566,4 @@ Discuss the following points:
 1. At what temperature does the cubic $Pm\bar{3}m$ phase become dynamically stable?
 2. How does the thermal conductivity depend on temperature?
 3. Do the SRTA and GK results agree? If not, which method gives a larger thermal conductivity and why?
-4. What does the comparison between SRTA and GK tell you about the degree of anharmonicity in cubic CsPbI$_3$?
+4. What does the comparison between SRTA and GK tell you about the degree of anharmonicity in cubic CsPbI<sub>3</sub>?
