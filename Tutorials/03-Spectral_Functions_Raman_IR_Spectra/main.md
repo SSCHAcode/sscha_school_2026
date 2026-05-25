@@ -106,24 +106,354 @@ In this tutorial, we will use this Lanczos algorithm to compute the phonon Green
 
 For this, we need the package `tdscha` (it is recommended to configure it with the Julia speedup to run faster; see the installation guide).
 
-## The Phonon Green's function
+## Tutorial
 
 We need to first relax a complete SSCHA calculation, exactly as for the free energy hessian.
-You find the script `sscha_relax.py`, which obtain the CsPbI3 structure and final dynamical matrix at 500 K.
+This can be performed via the `sscha_relax.py` script, which perform an automatic (fixed volume) sscha relaxation from the Harmonic dynamical matrix
+using 256 configurations.
 
-> **Exercise:**
->
-> Use your knowledge of CellConstructor to extract a structure file from the final dynamical matrix to submit the calculation of the dielectric tensor, effective charges, and Raman tensor in Quantum ESPRESSO.
->
-> Hint: The structure is the attribute `structure` of the Phonons object. The structure in the SCF file can be saved with the `save_scf` method of the Structure object.
->
-> You can then attach the structure to the header of the ESPRESSO `ir_raman_header.pwi`.
->
-> Notice that we are using norm-conserving pseudopotentials and the LDA exchange-correlation functional, as the Raman tensor in Quantum ESPRESSO is implemented only with them. However, this is usually an excellent approximation.
->
-> You must run the pw.x code and the ph.x code (`ir_raman_complete.phi`), which performs the phonon calculation.
->
-> We provide the final output file in `ir_raman_complete.pho`.
+We provide the final result already as `sscha_auxiliary_dyn_` files.
+The first step for a dynamical linear response calculation is to have a very well converged auxiliary dynamical matrix.
+For this purpouse, it is useful to run an additional minimization with a higher number of configuration once.
+
+This is done by the script `last_sscha_minim.py` which we will analyze in the next section.
+
+```python
+import sys, os
+import cellconstructor as CC, cellconstructor.Phonons
+import sscha, sscha.Ensemble, sscha.SchaMinimizer
+
+from quippy.potential import Potential
+
+
+TEMPERATURE = 450 # K
+NQIRR = 4
+START_DYN = "sscha_auxiliary_dyn_"
+POTENTIAL = "../../Materials/GAP_1.xml"
+N_CONFIGS = 1024
+POP_ID = 100
+
+
+def last_sscha_relax(temperature = TEMPERATURE):
+    # Load the sscha dynamical matrix
+    dyn = CC.Phonons.Phonons(START_DYN, NQIRR)
+
+    # Load the interatomic Potential for CsPbI3
+    calc = Potential("IP GAP", param_filename=POTENTIAL)
+
+    # Generate the last esemble
+    ensemble = sscha.Ensemble.Ensemble(dyn, temperature)
+    ensemble.generate(N_CONFIGS)
+
+    # Compute the energies and forces of the ensemble with the GAP potential
+    ensemble.compute_ensemble(calc)
+
+    # Compute a full sscha minimization on the new bigger ensemble
+    minim = sscha.SchaMinimizer.SSCHA_Minimizer(ensemble)
+    minim.set_minimization_step(0.02)
+    minim.meaningful_factor = 0.01
+    minim.run()
+
+    # Save the final dynamical matrix and ensemble for further calculations
+    minim.ensemble.save_bin("data", POP_ID)
+    minim.dyn.save_qe("sscha_converged_dyn_")
+
+
+last_sscha_relax()
+```
+
+This script performs a full SSCHA minimization starting from the auxiliary dynamical matrix obtained from the previous SSCHA relaxation, but using a bigger ensemble of 1024 configurations.
+The final ensemble is saved in binary format inside
+the directory `data`, with an unique ID of `100` (any other ensemble with that ID will be overwritten). The final SSCHA auxiliary dynamical matrix is saved in the file `sscha_converged_dyn_`.
+These are usefull if you want to perform multiple linear response calculations, as they do not need to be recomputed.
+
+
+Once we have the final converged auxiliary dynamical matrix, we can compute the phonon Green's function and the IR spectrum with the script `tdscha_run_ir.py`.
+
+```python
+import cellconstructor as CC, cellconstructor.Phonons
+import sscha, sscha.Ensemble
+import numpy as np
+
+import tdscha, tdscha.DynamicalLanczos
+
+import sys, os
+
+TEMPERATURE = 450 # K
+NQIRR = 4 # Irreducible q points of the dynamical matrix
+
+# Info about the dynamical matrix and the ensemble
+ORIGINAL_DYN = "sscha_auxiliary_dyn_"
+FINAL_DYN = "sscha_converged_dyn_"
+POP_ID = 100
+
+def compute_ir():
+    # Load the original ensemble
+    dyn_original = CC.Phonons.Phonons(ORIGINAL_DYN, NQIRR)
+    ensemble = sscha.Ensemble.Ensemble(dyn_original, TEMPERATURE)
+    ensemble.load_bin("data", POP_ID)
+
+    # Lets load the final converged dynamical matrix
+    final_dyn = CC.Phonons.Phonons(FINAL_DYN, NQIRR)
+    
+    # To prepare the IR or Raman, we need 
+    # IR : dielectric tensor and Born effective charges
+    # Raman : Raman tensor
+    # Load them from quantum espresso ph.x output
+    final_dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
+
+    # Update the ensemble weights on the converged dynamical matrix
+    ensemble.update_weights(final_dyn, TEMPERATURE)
+
+    # Initialize the TD-SCHA Lanczos algorithm
+    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble)
+    lanczos.init()
+
+    # Let us define which level of anharmonicity we want
+    lanczos.ignore_v3 = False # Add bubble contribution if false
+    lanczos.ignore_v4 = True # Add RPA resummation if false (a factor 2 slower in speed - no extra memory)
+
+    # If both v3 and v4 are ignored (both true), we get the 'harmonic' spectrum
+    # on the sscha auxiliary frequencies
+
+    # Define the reponse function to observe
+    # In this case IR with polarization along the x axis
+    polarization = np.array([1.0, 0.0, 0.0])
+    lanczos.prepare_ir(pol_vec = polarization)
+
+    # Run the lanczos algorithm for 40 steps
+    lanczos.run_FT(40)
+
+    # Save the final result in binary
+    lanczos.save_status("IR_x.npz")
+
+
+compute_ir()
+```
+
+Let's analyze the script `tdscha_run_ir.py` step by step inside the function `compute_ir()`:
+The first step is loading the final sscha ensemble and dynamical matrix, which is achieved by the following lines:
+
+```python
+    dyn_original = CC.Phonons.Phonons(ORIGINAL_DYN, NQIRR)
+    ensemble = sscha.Ensemble.Ensemble(dyn_original, TEMPERATURE)
+    ensemble.load_bin("data", POP_ID)
+
+    # Lets load the final converged dynamical matrix
+    final_dyn = CC.Phonons.Phonons(FINAL_DYN, NQIRR)
+```
+
+Notably, we want to compute the IR response. For this reason, we need to tell the `tdscha` the relation between atomic displacements and the polarization.
+This is achieved by loading the Born effective charges and dielectric tensor from a Quantum ESPRESSO phonon calculation, which is done by the line:
+
+```python
+    final_dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
+```
+
+The file `dielectric_calc.pho` is the output of a Quantum ESPRESSO phonon calculation, which contains the information about the Born effective charges and dielectric tensor. We provide the example files used to generate this output as `dielectric_calc.pwi` and `dielectric_calc.phi`. In particular, we need to extract the structure from the final dynamical matrix to run the Quantum ESPRESSO calculation to write the file `dielectric_calc.pwi`, as the Born effective charges needs to be computed on the final converged centroids positions. This is performed by the file `extract_structure.py`, in particular by the lines:
+
+```python
+    # Load the final converged dynamical matrix
+    dyn = CC.Phonons.Phonons("sscha_converged_dyn_")
+
+    # Save the structure in the espresso format for pw.x
+    dyn.structure.save_scf("sscha_structure.scf")
+```
+
+The final structure looks like the following
+
+```
+CELL_PARAMETERS angstrom
+6.2340501132548267  0.0000000000000000  0.0000000000000000
+0.0000000000000000  6.2340501132548267  0.0000000000000000
+0.0000000000000000  0.0000000000000000  6.2340501132548267
+
+ATOMIC_POSITIONS angstrom
+Cs    3.1170250566274138  3.1170250566274138  3.1170250566274138
+Pb    0.0000000000000002  0.0000000000000002  0.0000000000000002
+I    3.1170250566274138  0.0000000000000002  0.0000000000000002
+I    0.0000000000000002  0.0000000000000002  3.1170250566274138
+I    0.0000000000000002  3.1170250566274138  0.0000000000000002
+```
+
+This file contains the cell parameters (rows of the cell matrix) in Angstrom and the cartesian coordinates of all the atoms in the primitive cell (also in Angstrom). In this format, it can be pasted on the bottom of a Quantum ESPRESSO input file.
+
+The two espresso inputs can be run with the following commands (**No need to do it now, it may take time, we already provide the final output files**):
+
+```bash
+mpirun -np 4 pw.x -npool 4 -i dielectric_calc.pwi > dielectric_calc.pwo
+mpirun -np 4 ph.x -npool 4 -i dielectric_calc.phi > dielectric_calc.pho
+```
+
+Once the effective charges, Raman Tensor and Dielectric Tensor have been computed, they can be loaded in the final dynamical matrix with the method `ReadInfoFromESPRESSO`, which is used in the line:
+
+```python
+    final_dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
+```
+
+This is important if we want to compute IR or Raman response, as the response functions are computed with the effective charges and Raman tensor. We can skip this if, instead, we want just the displacement-displacement green-function (e.g. to compute the free energy Hessian).
+
+Next, we update the ensemble so that it reflects the final dynamical matrix, which is done by the line:
+
+```python
+    ensemble.update_weights(final_dyn, TEMPERATURE)
+```
+
+This is the reweighting, and it changes the weight of each stochastic configuration inside the ensemble so that, when we compute the average, we are computing the average with respect to the `final_dyn` rather than the dynamical matrix used to generate the ensemble.
+The new weights are computed as:
+
+```math
+\rho_i = \frac{\rho_{{\mathcal R}_1,\Phi_1}(\bm R_i)}{\rho_{{\mathcal R}^{(0)}, \Phi^{(0)}}}
+```
+
+Next, we need to prepare the grounds for the dynamical linear-response calculation.
+This is performed using the Lanczos algorithm.
+The algorithm is initialized as follows:
+
+```python
+    # Initialize the TD-SCHA Lanczos algorithm
+    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble)
+    lanczos.init()
+
+    # Let us define which level of anharmonicity we want
+    lanczos.ignore_v3 = False # Add bubble contribution if false
+    lanczos.ignore_v4 = True # Add RPA resummation if false 
+```
+
+The `ignore_v3` and `ignore_v4` flags determine if we compute the phonon spectra with different approximation. By setting both to False, we are computing the full TD-SCHA response function, without any other approximation.
+Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in the Free energy Hessian. However, thanks to how the Lanczos algorithm is formulated, including the full RPA resummation with the 4-phonon scattering vertices does not increase the computational cost of the algorithm. In particular, the cost only increase by a factor of 2, without any consequences on the memory. Here, we ignore it just to have quick results, however, you can try running it also with False.
+This is also the reason why we can use the Lanczos algorithm from the TD-SCHA to compute the free energy Hessian accounting for the 4-phonon scatterings even in relatively large supercells without any memory issue.
+
+
+Then, we need to specify which response function we want to compute.
+In this case IR response, with polarization along the x cartesian axis:
+
+```
+    # Define the reponse function to observe
+    # In this case IR with polarization along the x axis
+    polarization = np.array([1.0, 0.0, 0.0])
+    lanczos.prepare_ir(pol_vec = polarization)
+```
+
+This call needs to know which atom and how they displace when we perturb the system with an electric field on the x axis. This information is contained in the effective charges, which are read from the `dielectric_calc.pho` file, therefore this call will crash if no effective charge is defined on the dynamical matrix.
+If we want to run the Raman, we would have use the `prepare_raman` function instead, which needs the Raman tensor instead of the effective charges.
+Indeed, for the raman, we need to pass both the input and output polarization vector for the electric field (scattering). If we wanted the displacement-displacement Green function, there is no need to preload the effective charges or the Raman tensor. In this case, we just need to call `prepare_mode` passing the index of the phonon mode we want to perturb. The index of the phonon mode is ordered from 0 (the lowest frequency mode in the supercell) to 3N-3 (the highest frequency mode in the supercell), excluding the 3 acoustic modes at Gamma.
+
+Last, we can run the Lanczos algorithm. 
+
+```python
+    # Run the lanczos algorithm for 40 steps
+    lanczos.run_FT(40)
+```
+
+The Lanczos algorithm is iterative. We get to decide how many iterations. Feel free to reduce this to 20-30 iterations if it takes too much time.
+Each iteration computes the next Lanczos vector and the next element of the tridiagonal matrix, which is used to compute the response function. The more iterations we do, the better the resolution of the spectra.
+The run command takes multiples optional arguments. Let us see the API documentation for the `run_FT` method to see what we can do:
+
+```python
+    run_FT(n_iter, save_dir = None, save_each = 5, verbose = True, n_rep_orth = 0, n_ortho = 10, flush_output = True, debug = False, prefix = "LANCZOS", run_simm = None, optimized = False)
+```
+Among all these option, worth mention is `save_dir`, `save_each` and `prefix` keywords. The `save_dir`, if set to something different to `None`, is the directory in which the intermediate status of the Lanczos algorithm is saved. This can be used to resume a previous calculation, or to check the convergence of the spectra with the number of iterations before we reached the maximum number of iterations.
+`save_each` is the number of iterations after which the status is saved, and `prefix` is the prefix of the filename in which the status is saved.
+By default, the status is not saved, you can try to set `save_dir` to something like `'.'` to see that every 5 steps it will save a file with the name `LANCZOS_step_XX.npz`, where `XX` is the number of iterations.
+
+We can also manually save at the end of the run with the method `save_status` of the Lanczos object, which takes as argument the filename in which the status is saved.
+
+```python
+    # Save the final result in binary
+    lanczos.save_status("IR_x.npz")
+```
+
+If we run the algorithm, we will get the final spectra in the file `IR_x.npz`.
+
+The TD-SCHA provides automatically a very simple way to plot the spectra with the command-line utility `tdscha-plot-data`
+
+```bash
+tdscha-plot-data IR_x.npz 0 200 0.5
+```
+
+The first argument is the file in which the lanczos calculation is performed, then we give a range of frequencies (in cm-1), here from 0cm-1 to 200cm-1, the last one is the smearing (in cm-1) used to plot the spectra.
+This command-line provides a quick way to plot the spectra.
+However, if you want more control, we can get the spectrum directly in python.
+
+The example script that plots the spectrum is `plot_spectrum.py`.
+
+```python
+import cellconstructor as CC, cellconstructor.Units
+import tdscha, tdscha.DynamicalLanczos
+import numpy as np
+import matplotlib.pyplot as plt
+import sys, os
+
+DATA = "IR_x.npz"
+W_START = 0 # cm-1
+W_END = 200 # cm-1
+TERMINATOR = True
+SMEARING = 0.0 # cm-1
+
+def plot_spectrum():
+    # Load the final lanczos results
+    lanczos = tdscha.DynamicalLanczos.Lanczos()
+    lanczos.load_status(DATA)
+
+    # Extract the Green function
+    w_array = np.linspace(W_START, W_END, 2000)
+    w_ry = w_array / CC.Units.RY_TO_CM
+    smearing_ry = SMEARING / CC.Units.RY_TO_CM
+    green_function = lanczos.get_green_function_continued_fraction(w_ry, smearing=smearing_ry,
+                                                                   use_terminator = TERMINATOR)
+
+    # The IR spectrum is proportional to - Im (G(w))
+    ir_spectrum = -np.imag(green_function)
+
+    # Plot the IR spectrum
+    plt.plot(w_array, ir_spectrum)
+    plt.xlabel("Frequency [cm-1]")
+    plt.ylabel("- Im (G)")
+    plt.title("IR spectrum - polarization x")
+    plt.tight_layout()
+    plt.savefig("ir_spectrum.png")
+    plt.show()
+
+
+plot_spectrum()
+```
+
+In particular, we first load the Lanczos algorithm status:
+
+```python
+    # Load the final lanczos results
+    lanczos = tdscha.DynamicalLanczos.Lanczos()
+    lanczos.load_status("IR_x.npz")
+```
+
+We then need to compute the Green's function from the Lanczos coefficient.
+The Lanczos algorithm find an orthonormal basis in which the inverse-response function is a tridiagonal matrix ``\mathcal T``
+
+```math
+\mathca T = \begin{pmatrix}
+a_1 & b_1 & 0 & 0 & \dots \\
+b_1 & a_2 & b_2 & 0 & \dots \\
+0 & b_2 & a_3 & b_3 & \dots \\
+0 & 0 & b_3 & a_4 & \dots \\
+\vdots & \vdots & \vdots & \vdots & \ddots
+\end{pmatrix}
+```
+
+where the first element of the basis is the perturbation vector.
+Therefore, the green function is actually the (1,1) element of the inverse of the tridiagonal matrix:
+
+```math
+G(\omega + i\eta) =  \left[ \mathcal T - \mathcal I(\omega + i\eta)^2 \right]^{-1}_{1,1}
+```
+
+where ``\mathcal I`` is the identity matrix. Thanks to the many zeros in the tridiagonal matrix, the inverse of the first element is very easy to compute, and correspond to the following continued fraction:
+
+```math
+G(\omega + i\eta) = \frac{1}{a_1 - (\omega + i\eta)^2 - \frac{b_1^2}{a_2 - (\omega + i\eta)^2 - \frac{b_2^2}{a_3 - (\omega + i\eta)^2 - \dots}}}
+```
+
+
 
 ### Prepare the Infrared Response
 
