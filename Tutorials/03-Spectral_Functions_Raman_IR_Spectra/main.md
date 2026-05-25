@@ -231,6 +231,10 @@ def compute_ir():
 compute_ir()
 ```
 
+### Deep analysis of the script
+
+#### Loading the ensemble
+
 Let's analyze the script `tdscha_run_ir.py` step by step inside the function `compute_ir()`:
 The first step is loading the final sscha ensemble and dynamical matrix, which is achieved by the following lines:
 
@@ -242,6 +246,9 @@ The first step is loading the final sscha ensemble and dynamical matrix, which i
     # Lets load the final converged dynamical matrix
     final_dyn = CC.Phonons.Phonons(FINAL_DYN, NQIRR)
 ```
+
+
+#### Born effective charges and Raman tensors
 
 Notably, we want to compute the IR response. For this reason, we need to tell the `tdscha` the relation between atomic displacements and the polarization.
 This is achieved by loading the Born effective charges and dielectric tensor from a Quantum ESPRESSO phonon calculation, which is done by the line:
@@ -293,6 +300,8 @@ Once the effective charges, Raman Tensor and Dielectric Tensor have been compute
 
 This is important if we want to compute IR or Raman response, as the response functions are computed with the effective charges and Raman tensor. We can skip this if, instead, we want just the displacement-displacement green-function (e.g. to compute the free energy Hessian).
 
+#### Update the ensemble
+
 Next, we update the ensemble so that it reflects the final dynamical matrix, which is done by the line:
 
 ```python
@@ -306,6 +315,7 @@ The new weights are computed as:
 \rho_i = \frac{\rho_{{\mathcal R}_1,\Phi_1}(\bm R_i)}{\rho_{{\mathcal R}^{(0)}, \Phi^{(0)}}}
 ```
 
+#### Initialize the Lanczos algorithm for dynamical linear response
 Next, we need to prepare the grounds for the dynamical linear-response calculation.
 This is performed using the Lanczos algorithm.
 The algorithm is initialized as follows:
@@ -325,6 +335,8 @@ Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in th
 This is also the reason why we can use the Lanczos algorithm from the TD-SCHA to compute the free energy Hessian accounting for the 4-phonon scatterings even in relatively large supercells without any memory issue.
 
 
+#### Define the perturbation
+
 Then, we need to specify which response function we want to compute.
 In this case IR response, with polarization along the x cartesian axis:
 
@@ -339,6 +351,8 @@ This call needs to know which atom and how they displace when we perturb the sys
 If we want to run the Raman, we would have use the `prepare_raman` function instead, which needs the Raman tensor instead of the effective charges.
 Indeed, for the raman, we need to pass both the input and output polarization vector for the electric field (scattering). If we wanted the displacement-displacement Green function, there is no need to preload the effective charges or the Raman tensor. In this case, we just need to call `prepare_mode` passing the index of the phonon mode we want to perturb. The index of the phonon mode is ordered from 0 (the lowest frequency mode in the supercell) to 3N-3 (the highest frequency mode in the supercell), excluding the 3 acoustic modes at Gamma.
 
+
+#### Run the algorithm
 Last, we can run the Lanczos algorithm. 
 
 ```python
@@ -365,6 +379,8 @@ We can also manually save at the end of the run with the method `save_status` of
 ```
 
 If we run the algorithm, we will get the final spectra in the file `IR_x.npz`.
+
+### Extract the green's function and plot
 
 The TD-SCHA provides automatically a very simple way to plot the spectra with the command-line utility `tdscha-plot-data`
 
@@ -419,6 +435,11 @@ def plot_spectrum():
 plot_spectrum()
 ```
 
+The final result is plotted in the following figure
+![IR Spectrum](ir_spectrum.png)
+
+#### The continued fraction
+
 In particular, we first load the Lanczos algorithm status:
 
 ```python
@@ -453,220 +474,37 @@ where ``\mathcal I`` is the identity matrix. Thanks to the many zeros in the tri
 G(\omega + i\eta) = \frac{1}{a_1 - (\omega + i\eta)^2 - \frac{b_1^2}{a_2 - (\omega + i\eta)^2 - \frac{b_2^2}{a_3 - (\omega + i\eta)^2 - \dots}}}
 ```
 
-
-
-### Prepare the Infrared Response
-
-We need to attach the Raman tensor and effective charges computed inside `ir_raman_complete.pho` to the final dynamical matrix. We will use this to initialize the response function calculation, as in the equation above.
-
-To attach the content of an ESPRESSO ph calculation (only dielectric tensor, Raman tensor, and Born effective charges) to a specific dynamical matrix, use:
+The function of the python script `get_green_function_continued_fraction` uses the ``a_i``, ``b_i`` saved inside the `lanczos` object to compute the green function in the frequencies provided in input:
 
 ```python
-dyn.ReadInfoFromESPRESSO("ir_raman_complete.pho")
+    green_function = lanczos.get_green_function_continued_fraction(w_ry, smearing=smearing_ry,
+                                                                   use_terminator = TERMINATOR)
 ```
 
-If you save the dynamical matrix in Quantum ESPRESSO format, before the frequencies and the diagonalization, there will be the dielectric tensor:
+This function takes as input the frequency ``\omega`` (in Ry units), the smearing ``\eta``, and if to use or not a *terminator*.
+The terminator is a trick to reach the ``N\to\infty`` limit (where ``N`` is the number of iterations). Empirically, we see that after a certain number of iteration, the coefficients ``a_i`` and ``b_i`` oscillate around a specific value. Therefore we can fill all the values for ``i>N`` with the average value of the coefficient, and simulate an infinite continued fraction. The infinite continued fraction can be solved analytically:
 
+```math
+G_\infty(z) = \frac{1}{a_\infty - z^2 - b_\infty G_\infty(z)}
 ```
- Dielectric Tensor:
-
-      1.890128098000           0.000000000000           0.000000000000
-      0.000000000000           1.912811137000           0.000000000000
-      0.000000000000           0.000000000000           1.916728724000
-```
-
-Followed by the effective charges and the Raman tensor.
-
-### Submitting the IR Calculation
-
-With the following script, we submit a TD-SCHA calculation for the IR.
-
-```python
-import numpy as np
-import cellconstructor as CC, cellconstructor.Phonons
-import sscha, sscha.Ensemble
-import tdscha, tdscha.DynamicalLanczos as DL
-
-# Load the starting dynamical matrix
-dyn_start = CC.Phonons.Phonons("start_dyn_ice")
-
-# Load the ensemble
-temperature = 0 # K
-population = 2
-n_configs = 10000
-
-ensemble = sscha.Ensemble.Ensemble(dyn_start, temperature)
-ensemble.load("data", population, n_configs)
-
-# Load the final dynamical matrix
-final_dyn = CC.Phonons.Phonons("final_dyn_ice")
-final_dyn.ReadInfoFromESPRESSO("ir_raman_complete.pho")
-
-# Update the ensemble weights for the final dynamical matrix
-ensemble.update_weights(final_dyn, temperature)
-
-# Setup the TD-SCHA calculation with the Lanczos algorithm
-lanczos = DL.Lanczos(ensemble)
-lanczos.ignore_v3 = True
-lanczos.ignore_v4 = True
-
-# If you have julia-enabled tdscha installed uncomment
-# lanczos.mode = DL.MODE_FAST_JULIA
-# for a x10-x15 speedup.
-
-lanczos.init()
-
-
-# Setup the IR response
-polarization = np.array([1,0,0])  # Polarization of light
-lanczos.prepare_ir(pol_vec = polarization)
-
-
-# Run the algorithm
-n_iterations = 1000
-lanczos.run_FT(n_iterations)
-lanczos.save_status("ir_xpol")
+```math
+G_\infty(z) \left(a_\infty - z^2 - b_\infty G_\infty(z)\right) = 1
 ```
 
-**Congratulations!** You ran your first TD-SCHA calculation. You can plot the results by using:
+By solving this equation, we can replace the last fraction with the ``G_\infty(z)``, simulating infinite iterations. Setting `use_terminator` to True 
 
-```console
-tdscha-plot.py ir_xpol.npz
-```
 
-The script `tdscha-plot.py` is automatically installed with the tdscha package.
 
-![IR spectrum with both *include_v3* and *include_v4* set to False.](05_raman_ir/IR_v2.png)
 
-Additionally, `tdscha-plot.py` takes three more parameters: the range of frequencies to display and the smearing.
-
-### Deep Dive into the Calculation
-
-Let us dive a bit into the calculation. The beginning of the script should be almost self-explanatory, as we are just loading dynamical matrices, dielectric tensors, and effective charges.
-
-The line
-
-```python
-ensemble.update_weights(final_dyn, temperature)
-```
-
-deserves special attention. Here, we are changing the weights of the configurations inside the ensemble to simulate the specified dynamical matrix and temperature, even if they differ from those used to generate the ensemble. This is useful for computing the spectrum at several temperatures without extracting and calculating a new ensemble each time.
-
-```python
-# Setup the TD-SCHA calculation with the Lanczos algorithm
-lanczos = DL.Lanczos(ensemble)
-lanczos.ignore_v3 = True
-lanczos.ignore_v4 = True
-lanczos.init()
-```
-
-Then we initialize the Lanczos algorithm for the TD-SCHA, passing the ensemble.
-
-The `ignore_v3` and `ignore_v4` are flags that, if set to True, make the 3-phonon and 4-phonon scattering be ignored during the calculation.
-
-As you can see from the output, our IR signal had very sharp peaks because we ignored any phonon-phonon scattering process that could give rise to a finite lifetime.
-
-By setting only `ignore_v4` to True, we reproduce the behavior of the bubble approximation. Notably, while the four-phonon scattering is exceptionally computationally and memory demanding in free energy Hessian calculations, within the Lanczos algorithm, accounting for the four-phonon scattering is only a factor of two more expensive than using just the third order, without requiring any additional memory.
-
-```python
-# Setup the IR response
-polarization = np.array([1,0,0])  # Polarization of light
-lanczos.prepare_ir(pol_vec = polarization)
-```
-
-Here we tell the Lanczos which kind of calculation we want to do. In other words, we set the $\boldsymbol{r}$ and $\boldsymbol{q}$ vectors for the Lanczos calculation.
-
-- `prepare_ir`
-- `prepare_raman`
-- `prepare_mode`
-- `prepare_perturbation`
-
-The names are intuitive; besides the Raman and IR, `prepare_mode` allows you to study the response function of a specific phonon mode, and `prepare_perturbation` enables defining a custom perturbation function.
-
-```python
-# Run the algorithm
-n_iterations = 1000
-lanczos.run_FT(n_iterations)
-lanczos.save_status("ir_xpol")
-```
-
-Here we start the calculation of the response function. The number of iterations indicates how many Lanczos steps are required. Each step adds a new pole to the Green's function. Therefore, many steps are necessary to converge broad spectrum features, while much fewer are needed if the peaks are sharp. We save the status so that we can restore it later.
-
-Finally, the commented line:
-
-```python
-lanczos.mode = DL.MODE_FAST_JULIA
-```
-
-This line only works if Julia and PyCall are correctly set up on your machine; in that case, run the script with `python-jl` instead of python. It will provide a massive speedup of a factor between 10x and 15x. The calculation can also be run in parallel using `mpirun` before calling the Python executable (or `python-jl`). In this case, to work correctly, you should have mpi4py installed and working.
 
 > **Exercise:**
 >
-> Compute the Lanczos with the bubble approximation and without any approximation, and check the differences.
+> Compute the Lanczos with the SSCHA auxiliary frequencies, the bubble approximation and without any approximation, and check the differences.
 
-![IR signal accounting for the three-phonon scattering](05_raman_ir/IR_v3.png)
 
-![IR signal accounting for all anharmonic scattering. The peaks appearing slightly below 2500 cm-1 is a combination mode known to be present in ice. See [Cherubini et al., J Chem Phys 155, 184502, 2021](https://pubs.aip.org/aip/jcp/article-abstract/155/18/184502/199619/The-microscopic-origin-of-the-anomalous-isotopic?redirectedFrom=fulltext)](05_raman_ir/IR_v4.png)
-
-> **Exercise:**
+> **Question:**
 >
-> Try to see how different polarizations of the light affect the result.
-
-## Analyze the Output
-
-In the last part, we used the script `tdscha-plot.py` to display the simulation result. This is a quick way to show the results of a calculation.
-
-Here, we will dive deeper into the calculation output file to extract the response function and obtain the results.
-
-The Lanczos algorithm provides a set of coefficients $a_i$, $b_i$, and $c_i$ through which the Green's function is evaluated using a continued fraction:
-
-$$
-G(\omega) = \frac{1}{a_1 - (\omega + i\eta)^2 +  \frac{b_1c_1}{a_2 - (\omega+i\eta)^2 + \frac{c_2b_2}{a_3 - \cdots}}}
-$$
-
-Each iteration of the algorithm adds a new set of coefficients written to the standard output. Thanks to this expression, we only need the series of coefficients to compute the dynamical Green's function at any frequency and with any smearing. The Green's function can be computed with:
-
-```python
-green_function = lanczos.get_green_function_continued_fraction(frequencies, smearing=smearing)
-```
-
-Here, `frequencies` is an array in Rydberg. The response function is the negative of the imaginary part of the Green's function; thus, to reproduce the plot, we have:
-
-```python
-import tdscha, tdscha.DynamicalLanczos
-import cellconstructor as CC, cellconstructor.Units
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Load the result of the previous calculation
-lanczos = tdscha.DynamicalLanczos.Lanczos()
-lanczos.load_status("ir_xpol_v4")
-
-# Get the green function
-W_START = 0
-W_END = 3700
-N_W = 10000
-SMEARING = 10
-
-frequencies = np.linspace(W_START, W_END, N_W)
-
-# Convert in RY
-frequencies_ry = frequencies / CC.Units.RY_TO_CM
-smearing_ry = SMEARING / CC.Units.RY_TO_CM
-
-# Compute the green function
-green_function = lanczos.get_green_function_continued_fraction(frequencies_ry,
-        smearing=smearing_ry)
-
-# Get the response function
-ir_response_function = - np.imag(green_function)
-
-# Plot the data
-plt.plot(frequencies, ir_response_function)
-plt.show()
-```
-
-The previous script plots the data, precisely like `tdscha-plot.py`; however, now you have full access to the response function, both its imaginary and real parts.
+> Is this calculation enough, or do we need to compute also the response function for other perturbation, like y and z? Will something change in the spectrum if we do? Why?
 
 > **Exercise:**
 >
