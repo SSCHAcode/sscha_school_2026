@@ -1,4 +1,4 @@
-# Hands-on Session 5 - Raman and Infrared Spectra with the Time-Dependent Self-Consistent Harmonic Approximation
+# Hands-on Session 3 - Spectral functions, Raman and infrared spectra with the Time-Dependent SSCHA
 
 
 ## Theoretical background
@@ -334,6 +334,10 @@ The `ignore_v3` and `ignore_v4` flags determine if we compute the phonon spectra
 Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in the Free energy Hessian. However, thanks to how the Lanczos algorithm is formulated, including the full RPA resummation with the 4-phonon scattering vertices does not increase the computational cost of the algorithm. In particular, the cost only increase by a factor of 2, without any consequences on the memory. Here, we ignore it just to have quick results, however, you can try running it also with False.
 This is also the reason why we can use the Lanczos algorithm from the TD-SCHA to compute the free energy Hessian accounting for the 4-phonon scatterings even in relatively large supercells without any memory issue.
 
+<center>
+![Diagrammatic series of perturbation present in the self-energy. The first term is the bare auxiliary harmonic propagation, the 3-phonon scattering vertex $\stackrel{(3)}{\Phi}$ enable the bubble diagram (the second term) while the 4-phonon scattering $\stackrel{(4)}{\Phi}$ enalbes all the chained diagrams obtained from the RPA like Dyson equation.](Diagrams.png){ width=60% }
+</center>
+
 
 #### Define the perturbation
 
@@ -405,7 +409,7 @@ DATA = "IR_x.npz"
 W_START = 0 # cm-1
 W_END = 200 # cm-1
 TERMINATOR = True
-SMEARING = 0.0 # cm-1
+SMEARING = 0.5 # cm-1
 
 def plot_spectrum():
     # Load the final lanczos results
@@ -438,7 +442,7 @@ plot_spectrum()
 The final result is plotted in the following figure
 
 <center>
-![IR Spectrum](ir_spectrum.png){ width=60% }
+![IR Spectrum obtained with the `plot_spectrum.py`.](ir_spectrum.png){ width=60% }
 </center>
 
 #### The continued fraction
@@ -511,32 +515,20 @@ By solving this equation, we can replace the last fraction with the ``G_\infty(z
 
 > **Exercise:**
 >
-> Plot the IR data at various smearings and as a function of the number of steps (50, 100, 200, 300, and 1000). How does the signal change with smearing and the number of steps? When is it converged?
+> Plot the IR data at various smearings and as a function of the number of steps (10, 20, 30, 40). How does the signal change with smearing and the number of steps? Try plotting with and without the terminator and see the differences.
+
+
+
+
 
 ## Raman Response
 
 The Raman response is very similar to the IR. Raman probes the fluctuations of the polarizability instead of those of the polarization, and it occurs when the sample interacts with two light sources: the incoming electromagnetic radiation and the outgoing one. The outgoing radiation has a frequency that is shifted with respect to the incoming one by the energy of the scattering phonons. The signal on the red side of the pump is called Stokes, while the signal on the blue side is the Anti-Stokes. Since the outgoing radiation has higher energy than the incoming one in the Anti-Stokes, it is generated only by existing (thermally excited) phonons inside the sample, and therefore it has a lower intensity than the Stokes.
 
-On the Stokes side, the intensity of the scattered light with a frequency redshift of $\omega$ is:
-
-$$
-I(\omega) \propto \left\langle\alpha_{xy}(\omega)\alpha_{xy}(0)\right\rangle (n(\omega) + 1)
-$$
-
-where $\alpha$ is the polarizability along the $xy$ axis. We can do a linear expansion around the equilibrium position of the polarizability, and obtain:
-
-$$
-\alpha_{xy}(\omega) = \sum_{a = 1}^{3N}\frac{\partial \alpha_{xy}}{\partial R_a(\omega)} (R_a(\omega) - \mathcal R_a)
-$$
-
-$$
-\alpha_{xy}(\omega) = \sum_{a = 1}^{3N}\Xi_{xya} (R_a(\omega) - \mathcal R_a)
-$$
-
 If we insert this into the expression for the intensity, the average between the positions is the atomic Green's function divided by the square root of the masses, giving:
 
 $$
-I(\omega) \propto \sum_{ab} \frac{\Xi_{xy a} \Xi_{xy b}}{\sqrt{m_a m_b}} G_{ab}(\omega)(n(\omega) + 1)
+I(\omega) \propto \sum_{ab} \frac{\Xi_{xy a} \Xi_{xy b}}{\sqrt{m_a m_b}} \left[ -\text{Im} G_{ab}(\omega) \right](n(\omega) + 1)
 $$
 
 where $G_{ab}(\omega)$ is the atomic Green's function on atoms $a$ and $b$, while $\Xi_{xy a}$ is the Raman tensor along the electric fields directed in $x$ and $y$ on atom $a$.
@@ -555,26 +547,185 @@ lanczos.prepare_raman(pol_vec_in=polarization_in,
 
 Note that here we have to specify two polarizations of the light: the incoming radiation and the outgoing radiation.
 
-> **Exercise:**
->
-> Compute and plot the intensity of the Raman in the Stokes and Anti-Stokes configurations. Try with different polarizations and even orthogonal polarizations; what changes?
->
-> The Bose-Einstein factor $n(\omega)$ can be computed with the following function:
+Indeed, we need the Raman tensor $\Xi_{xya}$ defined within the dynamical matrix.
+
+For the cubic phase, $\Xi_{abc}$ is zero by symmetry, therefore there is no Raman active mode.
+To compute the Raman response, we need a lower symmetry phase.
+
+In this case, we take the tetragonal ($\beta$) phase of CsSnI$_3$.
+We provide inside the `Materials` directory a already performed SSCHA relaxation at 300 K (`sscha_auxiliary_tetra_` files)
+
+Also in this case, we need to perform a new final relaxation. This final relaxation can be performed with the `last_sscha_minim_tetra.py`, which is very similar to the script we employed for the cubic phase
 
 ```python
-# n(w) Bose-Einstein occupation number:
-# w is in Ry, T is in K
-n_w = tdscha.DynamicalLanczos.bose_occupation(w, T)
+import cellconstructor as CC, cellconstructor.Phonons
+import sscha, sscha.Ensemble, sscha.SchaMinimizer
+
+from quippy.potential import Potential
+
+
+TEMPERATURE = 300 # K
+NQIRR = 3
+START_DYN = "sscha_auxiliary_tetra_"
+POTENTIAL = "../../Materials/GAP_1.xml"
+N_CONFIGS = 1024
+POP_ID = 200
+
+
+def last_sscha_relax(temperature = TEMPERATURE):
+    # Load the sscha dynamical matrix
+    dyn = CC.Phonons.Phonons(START_DYN, NQIRR)
+
+    # Load the interatomic Potential for CsPbI3
+    calc = Potential("IP GAP", param_filename=POTENTIAL)
+
+    # Generate the last esemble
+    ensemble = sscha.Ensemble.Ensemble(dyn, temperature)
+    ensemble.generate(N_CONFIGS)
+
+    # Compute the energies and forces with the GAP potential
+    ensemble.compute_ensemble(calc)
+
+    # Compute a full sscha minimization on the new bigger ensemble
+    minim = sscha.SchaMinimizer.SSCHA_Minimizer(ensemble)
+    minim.set_minimization_step(0.02)
+    minim.meaningful_factor = 0.01
+    minim.run()
+
+    # Save the final dynamical matrix and ensemble for further calculations
+    minim.ensemble.save_bin("data", POP_ID)
+    minim.dyn.save_qe("sscha_converged_tetra_dyn_")
+
+
+last_sscha_relax()
 ```
 
-## Unpolarized Raman and IR
+This script is very similar to the previous one, the main differences are:
+1. The number of irreducible q-points NQIRR, which is 3 instead of 4 (we have a 2x2x1 supercell, so less q points in total)
+2. The temperature is set to 300 K instead of 450 K
+3. The name of the dynamical matrix is obviously different
+4. We save the ensemble in population 200 to avoid overwriting the cubic one in population 100.
 
-In the previous section, we saw how to compute Raman and IR with specific polarizations of the incoming and outgoing radiation on oriented crystals (single crystals). However, the most common situation is a powder sample probed with unpolarized light.
 
-In this case, we need to look at the Raman and IR response for unpolarized samples. While this is just the average of the x, y, and z directions for the IR signal, the Raman is more complex. In particular, the unpolarized Raman signal can be computed from the so-called *invariants*, where the perturbations in the polarizations are:
+Once this script runs, we get the new ensemble and the final highly converged dynamical matrix.
+At this point, we need to compute the Raman tensor, using DFPT (e.g. using quantum espresso).
+The Raman tensor express how the polarizability change when we move each atom.
+CellConstructor can load it from the quantum espresso `ph.x` output, like the Born effective charges.
+
+The script to compute the raman is:
+
+
+```python
+import cellconstructor as CC, cellconstructor.Phonons
+import sscha, sscha.Ensemble
+import numpy as np
+
+import tdscha, tdscha.DynamicalLanczos
+
+import sys, os
+
+TEMPERATURE = 300 # K
+NQIRR = 3 # Irreducible q points of the dynamical matrix
+
+# Info about the dynamical matrix and the ensemble
+ORIGINAL_DYN = "sscha_auxiliary_tetra_"
+FINAL_DYN = "sscha_converged_tetra_dyn_"
+POP_ID = 200
+
+def compute_raman():
+    # Load the original ensemble
+    dyn_original = CC.Phonons.Phonons(ORIGINAL_DYN, NQIRR)
+    ensemble = sscha.Ensemble.Ensemble(dyn_original, TEMPERATURE)
+    ensemble.load_bin("data", POP_ID)
+
+    # Lets load the final converged dynamical matrix
+    final_dyn = CC.Phonons.Phonons(FINAL_DYN, NQIRR)
+    
+    # To prepare the Raman, we need to load the Raman tensor
+    # Load them from quantum espresso ph.x output
+    final_dyn.ReadInfoFromESPRESSO("dielectric_calc_tetra.pho")
+
+    # Update the ensemble weights on the converged dynamical matrix
+    ensemble.update_weights(final_dyn, TEMPERATURE)
+
+    # Initialize the TD-SCHA Lanczos algorithm
+    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble, lo_to_split = None)
+    lanczos.init()
+
+    # Let us define which level of anharmonicity we want
+    lanczos.ignore_v3 = False # Add bubble contribution if false
+    lanczos.ignore_v4 = True # Add RPA resummation if false (a factor 2 slower in speed - no extra memory)
+
+    # If both v3 and v4 are ignored (both true), we get the 'harmonic' spectrum
+    # on the sscha auxiliary frequencies
+
+    # Define the reponse function to observe
+    # In this case IR with polarization along the x axis
+    polarization_in = np.array([1.0, 0.0, 0.0])
+    polarization_out = np.array([1.0, 0.0, 0.0])
+    lanczos.prepare_raman(pol_vec_in = polarization_in,
+                          pol_vec_out = polarization_out
+                          )
+
+    # Run the lanczos algorithm for 40 steps
+    lanczos.run_FT(40)
+
+    # Save the final result in binary
+    lanczos.save_status("Raman_xx.npz")
+
+if __name__ == "__main__":
+    # Change the working directory to the one containing this script
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    compute_raman()
+```
+
+
+Also this script is very similar to the IR one, with a few main differences:
+
+1. We load the data of the tetragonal phase.
+2. The raman initialization
+
+Let us focus on the Raman initialization:
+
+```python
+    # Define the reponse function to observe
+    # In this case IR with polarization along the x axis
+    polarization_in = np.array([1.0, 0.0, 0.0])
+    polarization_out = np.array([1.0, 0.0, 0.0])
+    lanczos.prepare_raman(pol_vec_in = polarization_in,
+                          pol_vec_out = polarization_out)
+```
+
+In this case, we need an incoming field polarization and an outgoing field polarization.
+The simultaneous presence of incoming and outgoing radiation generates a force on the atoms 
+that generate phonons inside the material.
+
+The result is the following
+
+<center>
+![Raman spectrum with 200 iterations of the Lanczos algorithm along the x polarization for both incoming an the outgoing radiation](Raman_xx_spectrum.png){ width=60% }
+</center>
+
+> **Exercise:**
+> Try to run the Raman off-diagonal like x-y, or the zz. Are the photo-excited modes the same? 
+
+The solution for the unpolarized Raman is something like
+
+<center>
+![Unpolarized Raman. The scattering factor $n(\omega) + 1$ kills high frequency modes, which have a lower thermal population than low-frequency modes.](exercise_solution/raman_spectrum.png){ width=60% }
+</center>
+
+
+### Unpolarized Raman
+
+Often, experiment do not distingush between laser polarization or sample orientation (e.g., the sample is a powder). In these cases,
+we need to average across all possible crystal orientation, or light polarization.
+This would require a Monte Carlo sampling, which could take a lot of computational time to compute the response function.
+An alternative approach is to directly compute the unpolarized Raman.
+In particular, the unpolarized Raman signal can be computed from the so-called *invariants*, where the perturbations in the polarizations are:
 
 $$
-I_A = \frac{1}{3}( {xx} + {yy} + {zz})^2/9
+I_A = \frac{1}{9}( {xx} + {yy} + {zz})^2
 $$
 
 $$
@@ -620,7 +771,8 @@ While the $I_{B_i}$ components are computed using index $i$. For example, to com
 lanczos.prepare_raman(unpolarized=5)
 ```
 
-To obtain the total spectrum, you need to add the scattering factor $n(\omega) + 1$ and sum all these perturbations with the correct prefactor (45 for $I_A$ and 7 for the sum of all $I_B$).
+To obtain the total spectrum, you need to add the factor $n(\omega) + 1$ and sum all these perturbations with the correct prefactor (45 for $I_A$ and 7 for the sum of all $I_B$).
+Note that the 
 
 To reset a calculation and start a new one, you can use:
 
@@ -630,10 +782,26 @@ lanczos.reset()
 
 which may be called before preparing the perturbation.
 
+This could be run inside a loop, e.g.
+
+```python
+for i in range(7):
+    lanczos.prepare_raman(unpolarized=i)
+
+    # Run the lanczos algorithm for 40 steps
+    lanczos.run_FT(50)
+
+    # Save the final result in binary
+    lanczos.save_status(f"Raman_unpol{i}.npz")
+
+    # Reset the calculation, ready for a new perturbation
+    lanczos.reset()
+```
+Or, if the calculation is heavy, it could be  run in parallel by simply running simultaneously the different perturbations.
+
+
 > **Exercise:**
 >
 > Compute the unpolarized Raman spectrum of ice and plot the results.
 
-![Unpolarized Raman of ice, Stokes.](05_raman_ir/raman_unpolarized.png)
 
-You should use a supercell size sufficiently large to properly converge the simulation. In this case, the 1x1x1 supercell is too small to converge the calculation and obtain meaningful results.

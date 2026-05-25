@@ -31,12 +31,14 @@ echo "  Output: $OUTPUT"
 pandoc "$TMP_MD" \
   --pdf-engine=xelatex \
   --include-in-header=header.tex \
+  --lua-filter=boxed-blockquotes.lua \
   -o "$OUTPUT" \
   --toc \
   --toc-depth=3 \
   -V documentclass=report \
   -V numbersections \
-  --highlight-style=tango \
+  -V secnumdepth=2 \
+  --syntax-highlighting=idiomatic \
   -V colorlinks=true \
   -V linkcolor=blue \
   -V urlcolor=blue \
