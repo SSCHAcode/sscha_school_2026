@@ -15,7 +15,7 @@ where $F(t')$ is the external time-dependent perturbation, and $A_0$ is the valu
 Alternatively, by passing in Fourier space, the convolution becomes a simple product:
 $$
 A(\omega) = A_0 + \chi(\omega) F(\omega)
-o$$
+$$
 
 This is very general, and it applies to any experiment. In this tutorial, we focus on IR and Raman spectroscopy.
 For the case of IR, the perturbation is the electric field of the light, which interacts with the material by generating an oscillating dipole. The response of the material is the *emitted* (or absorbed) electric field, which is related to how the dipole moment of the material oscillates in time.
@@ -23,9 +23,9 @@ So the observable $A(t)$ is the dipole moment of the material, and the perturbat
 
 The Kubo equation for the response function is
 $$
-\chi(t) = \frac{i}{\hbar}\theta(t)\left<M(t)M(0)\right>
+\chi(t) = \frac{i}{\hbar}\theta(t)\left\langle M(t)M(0)\right\rangle
 $$
-where $\hat M(t)$ is the dipole moment operator in the Heisenberg picture, and $\left<\cdot\right>$ is the quantum average at finite temperature.
+where $\hat M(t)$ is the dipole moment operator in the Heisenberg picture, and $\left\langle\cdot\right\rangle$ is the quantum average at finite temperature.
 The SSCHA can compute the response function $\chi(t)$ by using the TD-SCHA formalism. Here we will use the Lanczos algorithm to compute the response function in Fourier space, which is more efficient than computing it in time and then Fourier transforming it.
 
 The first step is to convert the diopole operator in phonons creation and annihilation operators. To this aim, we can approximate the dipole moment as a linear function of the atomic displacements $\hat u$:
@@ -39,16 +39,16 @@ $$
 where $E_\alpha$ is the electric field in the $\alpha$ Cartesian direction, $u^i_\beta$ is the displacement of atom $i$ in the $\beta$ Cartesian direction, and $\mathcal E$ is the total energy of the system (Born-Oppenheimer).
 Using this in the expression of the suscieptibility, we obtain:
 $$
-\chi_{\text{IR}\alpha}(t) = \sum_{ij}\sum_{\beta\gamma} \frac{Z^i_{\alpha\beta} Z^j_{\alpha\gamma}}_{\sqrt{m_i m_j}}\sqrt{m_im_j} \left<\hat u^i_\beta(t) \hat u^j_\gamma(0)\right>
+\chi_{\text{IR}\alpha}(t) = \sum_{ij}\sum_{\beta\gamma} \frac{Z^i_{\alpha\beta} Z^j_{\alpha\gamma}}{\sqrt{m_i m_j}}\sqrt{m_im_j} \left\langle\hat u^i_\beta(t) \hat u^j_\gamma(0)\right\rangle
 $$
 The last term is the so-called phonon Green's function, which represent the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
 $$
-G^{ij}_{\alpha\beta}(t) = \sqrt{m_i m_j}\left<\hat u_\alpha^i(t) \hat u^j_\beta(0)\right>
+G^{ij}_{\alpha\beta}(t) = \sqrt{m_i m_j}\left\langle\hat u_\alpha^i(t) \hat u^j_\beta(0)\right\rangle
 $$
 
 Analogously, the Raman spectrum is related to the response of the material to two electric fields, which interact with the material by generating an oscillating polarizability. The observable $A(t)$ is the polarizability of the material, and the perturbation $F(t)$ is the amplitude of the two overlapping electric fields which interferee within the material. The Raman susceptibility can be written as:
 $$
-\chi_\text{Raman}(t) = \left<\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right>
+\chi_\text{Raman}(t) = \left\langle\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right\rangle
 $$
 where $\hat \alpha_{\alpha\beta}$ is the polarizability operator, which can be approximated as a linear function of the atomic displacements:
 $$
@@ -63,7 +63,7 @@ Notably, the Raman requires two electric fields because it is a scattering, wher
 
 The Raman suscieptibility is then:
 $$
-\chi_\text{Raman}(t) =  \left<\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right> = \sum_{ij}\sum_{\gamma\delta} \frac{\Xi^i_{\alpha\beta\gamma} \Xi^j_{\alpha\beta\delta}}{\sqrt{m_i m_j}}\sqrt{m_im_j} \left<\hat u^i_\gamma(t) \hat u^j_\delta(0)\right>
+\chi_\text{Raman}(t) =  \left\langle\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right\rangle = \sum_{ij}\sum_{\gamma\delta} \frac{\Xi^i_{\alpha\beta\gamma} \Xi^j_{\alpha\beta\delta}}{\sqrt{m_i m_j}}\sqrt{m_im_j} \left\langle\hat u^i_\gamma(t) \hat u^j_\delta(0)\right\rangle
 $$
 
 Also here, the last term is the phonon Green's function, which represent the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
@@ -96,7 +96,7 @@ $$
 $$
 where $\Lambda^{cd}_{\mu\nu}(\omega)$ is the Fourier transform of the two-phonon propagator, which can be computed from the equilibrium non interacting Green's function $G_0(\omega)$ as:
 $$
-\Lambda^{ijlm}_{\alpha\beta\gamma\delta}(t) = \sqrt{m_i m_j m_l m_m}\left<\hat u^i_\alpha(t) \hat u^j_\beta(t) \hat u^l_\gamma(0) \hat u^m_\delta(0)\right>_0
+\Lambda^{ijlm}_{\alpha\beta\gamma\delta}(t) = \sqrt{m_i m_j m_l m_m}\left\langle\hat u^i_\alpha(t) \hat u^j_\beta(t) \hat u^l_\gamma(0) \hat u^m_\delta(0)\right\rangle_0
 $$
 
 Computing the full inversion of the self-energy for every value of the frequency is computationally extremely expensive.
@@ -311,9 +311,9 @@ Next, we update the ensemble so that it reflects the final dynamical matrix, whi
 This is the reweighting, and it changes the weight of each stochastic configuration inside the ensemble so that, when we compute the average, we are computing the average with respect to the `final_dyn` rather than the dynamical matrix used to generate the ensemble.
 The new weights are computed as:
 
-```math
-\rho_i = \frac{\rho_{{\mathcal R}_1,\Phi_1}(\bm R_i)}{\rho_{{\mathcal R}^{(0)}, \Phi^{(0)}}}
-```
+$$
+\rho_i = \frac{\rho_{{\mathcal R}_1,\Phi_1}(\mathbf{R}_i)}{\rho_{{\mathcal R}^{(0)}, \Phi^{(0)}}}
+$$
 
 #### Initialize the Lanczos algorithm for dynamical linear response
 Next, we need to prepare the grounds for the dynamical linear-response calculation.
@@ -436,7 +436,10 @@ plot_spectrum()
 ```
 
 The final result is plotted in the following figure
-![IR Spectrum](ir_spectrum.png)
+
+<center>
+![IR Spectrum](ir_spectrum.png){ width=60% }
+</center>
 
 #### The continued fraction
 
@@ -451,28 +454,28 @@ In particular, we first load the Lanczos algorithm status:
 We then need to compute the Green's function from the Lanczos coefficient.
 The Lanczos algorithm find an orthonormal basis in which the inverse-response function is a tridiagonal matrix ``\mathcal T``
 
-```math
-\mathca T = \begin{pmatrix}
+$$
+\mathcal T = \begin{pmatrix}
 a_1 & b_1 & 0 & 0 & \dots \\
 b_1 & a_2 & b_2 & 0 & \dots \\
 0 & b_2 & a_3 & b_3 & \dots \\
 0 & 0 & b_3 & a_4 & \dots \\
 \vdots & \vdots & \vdots & \vdots & \ddots
 \end{pmatrix}
-```
+$$
 
 where the first element of the basis is the perturbation vector.
 Therefore, the green function is actually the (1,1) element of the inverse of the tridiagonal matrix:
 
-```math
+$$
 G(\omega + i\eta) =  \left[ \mathcal T - \mathcal I(\omega + i\eta)^2 \right]^{-1}_{1,1}
-```
+$$
 
 where ``\mathcal I`` is the identity matrix. Thanks to the many zeros in the tridiagonal matrix, the inverse of the first element is very easy to compute, and correspond to the following continued fraction:
 
-```math
+$$
 G(\omega + i\eta) = \frac{1}{a_1 - (\omega + i\eta)^2 - \frac{b_1^2}{a_2 - (\omega + i\eta)^2 - \frac{b_2^2}{a_3 - (\omega + i\eta)^2 - \dots}}}
-```
+$$
 
 The function of the python script `get_green_function_continued_fraction` uses the ``a_i``, ``b_i`` saved inside the `lanczos` object to compute the green function in the frequencies provided in input:
 
@@ -484,12 +487,12 @@ The function of the python script `get_green_function_continued_fraction` uses t
 This function takes as input the frequency ``\omega`` (in Ry units), the smearing ``\eta``, and if to use or not a *terminator*.
 The terminator is a trick to reach the ``N\to\infty`` limit (where ``N`` is the number of iterations). Empirically, we see that after a certain number of iteration, the coefficients ``a_i`` and ``b_i`` oscillate around a specific value. Therefore we can fill all the values for ``i>N`` with the average value of the coefficient, and simulate an infinite continued fraction. The infinite continued fraction can be solved analytically:
 
-```math
+$$
 G_\infty(z) = \frac{1}{a_\infty - z^2 - b_\infty G_\infty(z)}
-```
-```math
+$$
+$$
 G_\infty(z) \left(a_\infty - z^2 - b_\infty G_\infty(z)\right) = 1
-```
+$$
 
 By solving this equation, we can replace the last fraction with the ``G_\infty(z)``, simulating infinite iterations. Setting `use_terminator` to True 
 
@@ -517,7 +520,7 @@ The Raman response is very similar to the IR. Raman probes the fluctuations of t
 On the Stokes side, the intensity of the scattered light with a frequency redshift of $\omega$ is:
 
 $$
-I(\omega) \propto \left<\alpha_{xy}(\omega)\alpha_{xy}(0)\right> (n(\omega) + 1)
+I(\omega) \propto \left\langle\alpha_{xy}(\omega)\alpha_{xy}(0)\right\rangle (n(\omega) + 1)
 $$
 
 where $\alpha$ is the polarizability along the $xy$ axis. We can do a linear expansion around the equilibrium position of the polarizability, and obtain:
