@@ -8,7 +8,7 @@ DATA = "IR_x.npz"
 W_START = 0 # cm-1
 W_END = 200 # cm-1
 TERMINATOR = True
-SMEARING = 0.0 # cm-1
+SMEARING = 0.5 # cm-1
 
 def plot_spectrum():
     # Load the final lanczos results
