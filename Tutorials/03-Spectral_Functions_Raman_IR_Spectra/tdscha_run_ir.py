@@ -1,5 +1,6 @@
 import cellconstructor as CC, cellconstructor.Phonons
 import sscha, sscha.Ensemble
+import numpy as np
 
 import tdscha, tdscha.DynamicalLanczos
 
@@ -26,10 +27,10 @@ def compute_ir():
     # IR : dielectric tensor and Born effective charges
     # Raman : Raman tensor
     # Load them from quantum espresso ph.x output
-    final_dyn.ReadInfoFromESPRESSO("eff_charges_raman.pho")
+    final_dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
 
     # Update the ensemble weights on the converged dynamical matrix
-    ensemble.update_weigths(FINAL_DYN, TEMPERATURE)
+    ensemble.update_weights(final_dyn, TEMPERATURE)
 
     # Initialize the TD-SCHA Lanczos algorithm
     lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble)
@@ -37,7 +38,7 @@ def compute_ir():
 
     # Let us define which level of anharmonicity we want
     lanczos.ignore_v3 = False # Add bubble contribution if false
-    lanczos.ignore_v4 = False # Add RPA resummation if false
+    lanczos.ignore_v4 = True # Add RPA resummation if false (a factor 2 slower in speed - no extra memory)
 
     # If both v3 and v4 are ignored (both true), we get the 'harmonic' spectrum
     # on the sscha auxiliary frequencies
@@ -46,5 +47,18 @@ def compute_ir():
     # In this case IR with polarization along the x axis
     polarization = np.array([1.0, 0.0, 0.0])
     lanczos.prepare_ir(pol_vec = polarization)
+
+    # Run the lanczos algorithm for 40 steps
+    lanczos.run_FT(40)
+
+    # Save the final result in binary
+    lanczos.save_status("IR_x.npz")
+
+if __name__ == "__main__":
+    # Change the working directory to the one containing this script
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    compute_ir()
+
 
 
