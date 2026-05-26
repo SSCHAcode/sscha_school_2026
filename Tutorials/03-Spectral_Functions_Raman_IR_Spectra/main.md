@@ -12,7 +12,7 @@ $$
 A(t) = A_0 + \int_{t_0}^t dt' \chi(t - t') F(t')
 $$
 where $F(t')$ is the external time-dependent perturbation, and $A_0$ is the value of the property $A$ in equilibrium.
-Alternatively, by passing in Fourier space, the convolution becomes a simple product:
+Alternatively, in Fourier space, the convolution becomes a simple product:
 $$
 A(\omega) = A_0 + \chi(\omega) F(\omega)
 $$
@@ -28,7 +28,7 @@ $$
 where $\hat M(t)$ is the dipole moment operator in the Heisenberg picture, and $\left\langle\cdot\right\rangle$ is the quantum average at finite temperature.
 The SSCHA can compute the response function $\chi(t)$ by using the TD-SCHA formalism. Here we will use the Lanczos algorithm to compute the response function in Fourier space, which is more efficient than computing it in time and then Fourier transforming it.
 
-The first step is to convert the diopole operator in phonons creation and annihilation operators. To this aim, we can approximate the dipole moment as a linear function of the atomic displacements $\hat u$:
+The first step is to convert the dipole operator in phonons creation and annihilation operators. To this aim, we can approximate the dipole moment as a linear function of the atomic displacements $\hat u$:
 $$
 \hat M(t) = \left.\frac{\partial M}{\partial u}\right|_{u = 0} \hat u(t) + O(u^2)
 $$
@@ -37,16 +37,16 @@ $$
 Z^i_{\alpha\beta} = \frac{\partial M_\alpha}{\partial u^i_\beta} = \frac{\partial^2 \mathcal E}{\partial u^i_\beta \partial E_\alpha}
 $$
 where $E_\alpha$ is the electric field in the $\alpha$ Cartesian direction, $u^i_\beta$ is the displacement of atom $i$ in the $\beta$ Cartesian direction, and $\mathcal E$ is the total energy of the system (Born-Oppenheimer).
-Using this in the expression of the suscieptibility, we obtain:
+Using this in the expression of the susceptibility, we obtain:
 $$
 \chi_{\text{IR}\alpha}(t) = \sum_{ij}\sum_{\beta\gamma} \frac{Z^i_{\alpha\beta} Z^j_{\alpha\gamma}}{\sqrt{m_i m_j}}\sqrt{m_im_j} \left\langle\hat u^i_\beta(t) \hat u^j_\gamma(0)\right\rangle
 $$
-The last term is the so-called phonon Green's function, which represent the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
+The last term is the so-called phonon Green's function, which represents the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
 $$
 G^{ij}_{\alpha\beta}(t) = \sqrt{m_i m_j}\left\langle\hat u_\alpha^i(t) \hat u^j_\beta(0)\right\rangle
 $$
 
-Analogously, the Raman spectrum is related to the response of the material to two electric fields, which interact with the material by generating an oscillating polarizability. The observable $A(t)$ is the polarizability of the material, and the perturbation $F(t)$ is the amplitude of the two overlapping electric fields which interferee within the material. The Raman susceptibility can be written as:
+Analogously, the Raman spectrum is related to the response of the material to two electric fields, which interact with the material by generating an oscillating polarizability. The observable $A(t)$ is the polarizability of the material, and the perturbation $F(t)$ is the amplitude of the two overlapping electric fields which interfere within the material. The Raman susceptibility can be written as:
 $$
 \chi_\text{Raman}(t) = \left\langle\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right\rangle
 $$
@@ -61,12 +61,12 @@ where $\Xi^i_{\alpha\beta\gamma}$ is the Raman tensor, which is the third deriva
 
 Notably, the Raman requires two electric fields because it is a scattering, where incoming and outcoming radiation are different. The IR instead is an absorption/emission, where incoming and outcoming radiation are the same.
 
-The Raman suscieptibility is then:
+The Raman susceptibility is then:
 $$
 \chi_\text{Raman}(t) =  \left\langle\hat\alpha_{\alpha\beta}(t) \hat\alpha_{\alpha\beta}(0)\right\rangle = \sum_{ij}\sum_{\gamma\delta} \frac{\Xi^i_{\alpha\beta\gamma} \Xi^j_{\alpha\beta\delta}}{\sqrt{m_i m_j}}\sqrt{m_im_j} \left\langle\hat u^i_\gamma(t) \hat u^j_\delta(0)\right\rangle
 $$
 
-Also here, the last term is the phonon Green's function, which represent the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
+Also here, the last term is the phonon Green's function, which represents the propagation of a phonon created at time $t=0$ and destroyed at time $t$.
 Therefore, to compute the IR and Raman spectra, we need to compute the phonon Green's function.
 Going in Fourier space, we get
 $$
@@ -109,12 +109,12 @@ For this, we need the package `tdscha` (it is recommended to configure it with t
 ## Tutorial
 
 We need to first relax a complete SSCHA calculation, exactly as for the free energy hessian.
-This can be performed via the `sscha_relax.py` script, which perform an automatic (fixed volume) sscha relaxation from the Harmonic dynamical matrix
+This can be performed via the `sscha_relax.py` script, which performs an automatic (fixed volume) sscha relaxation from the Harmonic dynamical matrix
 using 256 configurations.
 
 We provide the final result already as `sscha_auxiliary_dyn_` files.
 The first step for a dynamical linear response calculation is to have a very well converged auxiliary dynamical matrix.
-For this purpouse, it is useful to run an additional minimization with a higher number of configuration once.
+For this purpose, it is useful to run an additional minimization with a higher number of configurations once the initial relaxation is done.
 
 This is done by the script `last_sscha_minim.py` which we will analyze in the next section.
 
@@ -164,8 +164,8 @@ last_sscha_relax()
 
 This script performs a full SSCHA minimization starting from the auxiliary dynamical matrix obtained from the previous SSCHA relaxation, but using a bigger ensemble of 1024 configurations.
 The final ensemble is saved in binary format inside
-the directory `data`, with an unique ID of `100` (any other ensemble with that ID will be overwritten). The final SSCHA auxiliary dynamical matrix is saved in the file `sscha_converged_dyn_`.
-These are usefull if you want to perform multiple linear response calculations, as they do not need to be recomputed.
+the directory `data`, with a unique ID of `100` (any other ensemble with that ID will be overwritten). The final SSCHA auxiliary dynamical matrix is saved in the file `sscha_converged_dyn_`.
+These are useful if you want to perform multiple linear response calculations, as they do not need to be recomputed.
 
 
 Once we have the final converged auxiliary dynamical matrix, we can compute the phonon Green's function and the IR spectrum with the script `tdscha_run_ir.py`.
@@ -335,7 +335,7 @@ Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in th
 This is also the reason why we can use the Lanczos algorithm from the TD-SCHA to compute the free energy Hessian accounting for the 4-phonon scatterings even in relatively large supercells without any memory issue.
 
 <center>
-![Diagrammatic series of perturbation present in the self-energy. The first term is the bare auxiliary harmonic propagation, the 3-phonon scattering vertex $\stackrel{(3)}{\Phi}$ enable the bubble diagram (the second term) while the 4-phonon scattering $\stackrel{(4)}{\Phi}$ enalbes all the chained diagrams obtained from the RPA like Dyson equation.](Diagrams.png){ width=60% }
+![Diagrammatic series of perturbation present in the self-energy. The first term is the bare auxiliary harmonic propagation, the 3-phonon scattering vertex $\stackrel{(3)}{\Phi}$ enable the bubble diagram (the second term) while the 4-phonon scattering $\stackrel{(4)}{\Phi}$ enables all the chained diagrams obtained from the RPA like Dyson equation.](Diagrams.png){ width=60% }
 </center>
 
 
@@ -352,12 +352,12 @@ In this case IR response, with polarization along the x cartesian axis:
 ```
 
 This call needs to know which atom and how they displace when we perturb the system with an electric field on the x axis. This information is contained in the effective charges, which are read from the `dielectric_calc.pho` file, therefore this call will crash if no effective charge is defined on the dynamical matrix.
-If we want to run the Raman, we would have use the `prepare_raman` function instead, which needs the Raman tensor instead of the effective charges.
-Indeed, for the raman, we need to pass both the input and output polarization vector for the electric field (scattering). If we wanted the displacement-displacement Green function, there is no need to preload the effective charges or the Raman tensor. In this case, we just need to call `prepare_mode` passing the index of the phonon mode we want to perturb. The index of the phonon mode is ordered from 0 (the lowest frequency mode in the supercell) to 3N-3 (the highest frequency mode in the supercell), excluding the 3 acoustic modes at Gamma.
+If we want to run the Raman, we would use the `prepare_raman` function instead, which needs the Raman tensor instead of the effective charges.
+Indeed, for the Raman, we need to pass both the input and output polarization vector for the electric field (scattering). If we wanted the displacement-displacement Green's function, there is no need to preload the effective charges or the Raman tensor. In this case, we just need to call `prepare_mode` passing the index of the phonon mode we want to perturb. The index of the phonon mode is ordered from 0 (the lowest frequency mode in the supercell) to 3N-3 (the highest frequency mode in the supercell), excluding the 3 acoustic modes at Gamma.
 
 
 #### Run the algorithm
-Last, we can run the Lanczos algorithm. 
+Finally, we can run the Lanczos algorithm. 
 
 ```python
     # Run the lanczos algorithm for 40 steps
@@ -371,7 +371,7 @@ The run command takes multiples optional arguments. Let us see the API documenta
 ```python
     run_FT(n_iter, save_dir = None, save_each = 5, verbose = True, n_rep_orth = 0, n_ortho = 10, flush_output = True, debug = False, prefix = "LANCZOS", run_simm = None, optimized = False)
 ```
-Among all these option, worth mention is `save_dir`, `save_each` and `prefix` keywords. The `save_dir`, if set to something different to `None`, is the directory in which the intermediate status of the Lanczos algorithm is saved. This can be used to resume a previous calculation, or to check the convergence of the spectra with the number of iterations before we reached the maximum number of iterations.
+Among these options, worth mentioning are `save_dir`, `save_each` and `prefix`. The `save_dir`, if set to something other than `None`, is the directory in which the intermediate status of the Lanczos algorithm is saved. This can be used to resume a previous calculation, or to check the convergence of the spectra with the number of iterations before we reached the maximum number of iterations.
 `save_each` is the number of iterations after which the status is saved, and `prefix` is the prefix of the filename in which the status is saved.
 By default, the status is not saved, you can try to set `save_dir` to something like `'.'` to see that every 5 steps it will save a file with the name `LANCZOS_step_XX.npz`, where `XX` is the number of iterations.
 
@@ -456,7 +456,7 @@ In particular, we first load the Lanczos algorithm status:
 ```
 
 We then need to compute the Green's function from the Lanczos coefficient.
-The Lanczos algorithm find an orthonormal basis in which the inverse-response function is a tridiagonal matrix ``\mathcal T``
+The Lanczos algorithm finds an orthonormal basis in which the inverse-response function is a tridiagonal matrix ``\mathcal T``
 
 $$
 \mathcal T = \begin{pmatrix}
@@ -498,11 +498,7 @@ $$
 G_\infty(z) \left(a_\infty - z^2 - b_\infty G_\infty(z)\right) = 1
 $$
 
-By solving this equation, we can replace the last fraction with the ``G_\infty(z)``, simulating infinite iterations. Setting `use_terminator` to True 
-
-
-
-
+By solving this equation, we can replace the last fraction with the ``G_\infty(z)``, simulating infinite iterations. Setting `use_terminator` to True truncates the continued fraction by replacing the tail with the asymptotic limit $G_\infty(z)$.
 
 > **Exercise:**
 >
@@ -553,7 +549,7 @@ For the cubic phase, $\Xi_{abc}$ is zero by symmetry, therefore there is no Rama
 To compute the Raman response, we need a lower symmetry phase.
 
 In this case, we take the tetragonal ($\beta$) phase of CsSnI$_3$.
-We provide inside the `Materials` directory a already performed SSCHA relaxation at 300 K (`sscha_auxiliary_tetra_` files)
+We provide inside the `Materials` directory an already performed SSCHA relaxation at 300 K (`sscha_auxiliary_tetra_` files)
 
 Also in this case, we need to perform a new final relaxation. This final relaxation can be performed with the `last_sscha_minim_tetra.py`, which is very similar to the script we employed for the cubic phase
 
@@ -609,10 +605,10 @@ This script is very similar to the previous one, the main differences are:
 
 Once this script runs, we get the new ensemble and the final highly converged dynamical matrix.
 At this point, we need to compute the Raman tensor, using DFPT (e.g. using quantum espresso).
-The Raman tensor express how the polarizability change when we move each atom.
+The Raman tensor expresses how the polarizability changes when we move each atom.
 CellConstructor can load it from the quantum espresso `ph.x` output, like the Born effective charges.
 
-The script to compute the raman is:
+The script to compute the Raman is:
 
 
 ```python
@@ -718,7 +714,7 @@ The solution for the unpolarized Raman is something like
 
 ### Unpolarized Raman
 
-Often, experiment do not distingush between laser polarization or sample orientation (e.g., the sample is a powder). In these cases,
+Often, experiments do not distinguish between laser polarization or sample orientation (e.g., the sample is a powder). In these cases,
 we need to average across all possible crystal orientation, or light polarization.
 This would require a Monte Carlo sampling, which could take a lot of computational time to compute the response function.
 An alternative approach is to directly compute the unpolarized Raman.
@@ -772,7 +768,6 @@ lanczos.prepare_raman(unpolarized=5)
 ```
 
 To obtain the total spectrum, you need to add the factor $n(\omega) + 1$ and sum all these perturbations with the correct prefactor (45 for $I_A$ and 7 for the sum of all $I_B$).
-Note that the 
 
 To reset a calculation and start a new one, you can use:
 
@@ -802,6 +797,6 @@ Or, if the calculation is heavy, it could be  run in parallel by simply running 
 
 > **Exercise:**
 >
-> Compute the unpolarized Raman spectrum of ice and plot the results.
+> Compute the unpolarized Raman spectrum of CsSnI$_3$ and plot the results.
 
 
