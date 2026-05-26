@@ -359,10 +359,6 @@ by plotting the evolution of the minimizaton stored in the files `minimization_d
 </figure>
 Be careful that the number of configurations used is rather low and one should check convergence with respect to the number of configurations. One way of checking that is by running a final new step with more configurations starting from the result obtained at the end of the minimization.
 
-> **Exercise:**
->
-> Calculate the lattice parameter at 450 K.
-
 ##  An automatic calculation relaxing also the lattice parameters
 
 Even if the automatic calculation simplifies the procedure enormously, the SSCHA can further simplify the calculations by relaxing also the lattice parameters to a target pressure. This is done by replacing the relax feature by the vcrelax one as shown in the `sscha_school_2026/Tutorials/01-Free_Energy_Structural_Relaxations/sscha_vcrelax.py` script:
