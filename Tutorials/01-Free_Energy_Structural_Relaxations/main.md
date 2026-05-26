@@ -443,4 +443,4 @@ The final auxiliary dynamical matrices in this case will correspond to a differe
 >  <figcaption>Figure 3. Lattice parameter obained at different temperatures. </figcaption>
 ></figure>
 > 
-> As you can see the result is not very smooth although a clear positive trend is seeing. This calculations was perfomred with only 50 configurations per population. This noisy result suggests that the result can improve with more configurations.
+> As you can see the result is not very smooth although a clear positive trend is seeing. This calculation was perfomred with only 50 configurations per population. This noisy result suggests that the result can improve with more configurations.
