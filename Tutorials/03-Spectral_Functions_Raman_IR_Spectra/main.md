@@ -6,8 +6,7 @@
 This tutorial focuses on the computation of dynamical properties of materials.
 The key quantity which is measured by experiments is the *dynamical response function* $\chi(\omega)$.
 The response function probes how the material responds to a time-dependent external perturbation.
-We can model the result of any experiment as: the material is in equilibrium for $t < t_0$. Then, at $t_0$ a new perturbation is turned on,
-and we measure a property $A$ of the material at a certain time $t$. This response will be the convolution of the perturbation at all times between $t_0$ and $t$, weighted by how the perturbation propagates in time, which is precisely the response function $\chi(t-t')$:
+We can model any experiment as follows: the material is in equilibrium for $t < t_0$, then a perturbation is turned on at $t_0$, and we measure a property $A$ at a later time $t$. The measured response is the convolution of the perturbation over all intervening times, weighted by the response function $\chi(t-t')$, which describes how perturbations propagate in time:
 $$
 A(t) = A_0 + \int_{t_0}^t dt' \chi(t - t') F(t')
 $$
@@ -26,7 +25,7 @@ $$
 \chi(t) = \frac{i}{\hbar}\theta(t)\left\langle M(t)M(0)\right\rangle
 $$
 where $\hat M(t)$ is the dipole moment operator in the Heisenberg picture, and $\left\langle\cdot\right\rangle$ is the quantum average at finite temperature.
-The SSCHA can compute the response function $\chi(t)$ by using the TD-SCHA formalism. Here we will use the Lanczos algorithm to compute the response function in Fourier space, which is more efficient than computing it in time and then Fourier transforming it.
+The Time-Dependent SSCHA (TD-SCHA) extends the SSCHA framework to compute dynamical response functions. Here we will use the Lanczos algorithm to compute the response function in Fourier space, which is more efficient than computing it in time and then Fourier transforming it.
 
 The first step is to convert the dipole operator in phonons creation and annihilation operators. To this aim, we can approximate the dipole moment as a linear function of the atomic displacements $\hat u$:
 $$
@@ -78,7 +77,7 @@ $$
 
 ### The phonon Green's function
 
-The phonon Green's function can be computed within the TD-SCHA. In general, we can write the Green's function as a non-interacting green function plus a self-energy:
+The phonon Green's function can be computed within the TD-SCHA. In general, we can write the Green's function as a non-interacting Green's function plus a self-energy:
 $$
 G^{-1}(\omega) = G_0^{-1}(\omega) - \Pi(\omega)
 $$
@@ -90,21 +89,22 @@ G_0^{-1}(\omega) = I\omega^2 - D_\text{SSCHA}
 $$
 where $I$ is the identity matrix and $D_\text{SSCHA}$ is the dynamical matrix of the SSCHA Hamiltonian.
 
-The self-energy $\Pi(\omega)$ correspond to the same expression derived for the Free energy Hessian; see [Bianco et al., Physical Review B, 96, 014111, 2017](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.96.014111).
+The self-energy involves the third- and fourth-order interatomic force constants:
 $$
 \Pi_{ab}(\omega) = -\frac 12\sum_{cd\mu\nu} \overset{(3)}{\Phi}_{acd} \Lambda^{cd}_{\mu\nu}(\omega)\left[ 1 +\frac 12 \overset{(4)}{\Phi}\Lambda(\omega)\right]^{-1} \overset{(3)}{\Phi}_{\nu b}
 $$
+This corresponds to the same expression derived for the Free energy Hessian; see [Bianco et al., Physical Review B, 96, 014111, 2017](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.96.014111).
 where $\Lambda^{cd}_{\mu\nu}(\omega)$ is the Fourier transform of the two-phonon propagator, which can be computed from the equilibrium non interacting Green's function $G_0(\omega)$ as:
 $$
 \Lambda^{ijlm}_{\alpha\beta\gamma\delta}(t) = \sqrt{m_i m_j m_l m_m}\left\langle\hat u^i_\alpha(t) \hat u^j_\beta(t) \hat u^l_\gamma(0) \hat u^m_\delta(0)\right\rangle_0
 $$
 
 Computing the full inversion of the self-energy for every value of the frequency is computationally extremely expensive.
-It is possible, with an efficient algorithm (Lanczos), to prove that the Green function can be obtained by inverting a special matrix, see [Monacelli, Mauri, Physical Review B 103, 104305, 2021](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.103.104305).
+It is possible, with an efficient algorithm (Lanczos), to show that the Green's function can be obtained by inverting a special matrix, see [Monacelli, Mauri, Physical Review B 103, 104305, 2021](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.103.104305).
 
 In this tutorial, we will use this Lanczos algorithm to compute the phonon Green's function and, consequently, the IR spectrum of CsPbI3.
 
-For this, we need the package `tdscha` (it is recommended to configure it with the Julia speedup to run faster; see the installation guide).
+To run these calculations, we need the `tdscha` package (it is recommended to configure it with the Julia speedup to run faster; see the installation guide).
 
 ## Tutorial
 
@@ -257,7 +257,7 @@ This is achieved by loading the Born effective charges and dielectric tensor fro
     final_dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
 ```
 
-The file `dielectric_calc.pho` is the output of a Quantum ESPRESSO phonon calculation, which contains the information about the Born effective charges and dielectric tensor. We provide the example files used to generate this output as `dielectric_calc.pwi` and `dielectric_calc.phi`. In particular, we need to extract the structure from the final dynamical matrix to run the Quantum ESPRESSO calculation to write the file `dielectric_calc.pwi`, as the Born effective charges needs to be computed on the final converged centroids positions. This is performed by the file `extract_structure.py`, in particular by the lines:
+The file `dielectric_calc.pho` is the output of a Quantum ESPRESSO phonon calculation containing the Born effective charges and dielectric tensor. The input files used to generate this output are provided as `dielectric_calc.pwi` and `dielectric_calc.phi`. To write the `dielectric_calc.pwi` file, we first need to extract the structure from the final dynamical matrix, since the Born effective charges must be computed at the final converged centroid positions. This is performed by the file `extract_structure.py`, in particular by the lines:
 
 ```python
     # Load the final converged dynamical matrix
@@ -298,7 +298,7 @@ Once the effective charges, Raman Tensor and Dielectric Tensor have been compute
     final_dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
 ```
 
-This is important if we want to compute IR or Raman response, as the response functions are computed with the effective charges and Raman tensor. We can skip this if, instead, we want just the displacement-displacement green-function (e.g. to compute the free energy Hessian).
+This is important if we want to compute IR or Raman response, as the response functions are computed with the effective charges and Raman tensor. We can skip this if, instead, we want just the displacement-displacement Green's function (e.g. to compute the free energy Hessian).
 
 #### Update the ensemble
 
@@ -330,8 +330,8 @@ The algorithm is initialized as follows:
     lanczos.ignore_v4 = True # Add RPA resummation if false 
 ```
 
-The `ignore_v3` and `ignore_v4` flags determine if we compute the phonon spectra with different approximation. By setting both to False, we are computing the full TD-SCHA response function, without any other approximation.
-Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in the Free energy Hessian. However, thanks to how the Lanczos algorithm is formulated, including the full RPA resummation with the 4-phonon scattering vertices does not increase the computational cost of the algorithm. In particular, the cost only increase by a factor of 2, without any consequences on the memory. Here, we ignore it just to have quick results, however, you can try running it also with False.
+The `ignore_v3` and `ignore_v4` flags determine which approximation level we use to compute the phonon spectra. By setting both to False, we compute the full TD-SCHA response function without further approximations.
+Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in the Free energy Hessian. However, thanks to how the Lanczos algorithm is formulated, including the full RPA resummation with the 4-phonon scattering vertices does not increase the computational cost of the algorithm. In particular, the cost only increases by a factor of 2, without any consequences on the memory. Here we ignore it for speed, but you can try setting it to False as well.
 This is also the reason why we can use the Lanczos algorithm from the TD-SCHA to compute the free energy Hessian accounting for the 4-phonon scatterings even in relatively large supercells without any memory issue.
 
 <center>
@@ -351,7 +351,7 @@ In this case IR response, with polarization along the x cartesian axis:
     lanczos.prepare_ir(pol_vec = polarization)
 ```
 
-This call needs to know which atom and how they displace when we perturb the system with an electric field on the x axis. This information is contained in the effective charges, which are read from the `dielectric_calc.pho` file, therefore this call will crash if no effective charge is defined on the dynamical matrix.
+This call needs to know which atoms are displaced and by how much when we perturb the system with an electric field along the x axis. This information is contained in the effective charges, which are read from the `dielectric_calc.pho` file, therefore this call will crash if no effective charge is defined on the dynamical matrix.
 If we want to run the Raman, we would use the `prepare_raman` function instead, which needs the Raman tensor instead of the effective charges.
 Indeed, for the Raman, we need to pass both the input and output polarization vector for the electric field (scattering). If we wanted the displacement-displacement Green's function, there is no need to preload the effective charges or the Raman tensor. In this case, we just need to call `prepare_mode` passing the index of the phonon mode we want to perturb. The index of the phonon mode is ordered from 0 (the lowest frequency mode in the supercell) to 3N-3 (the highest frequency mode in the supercell), excluding the 3 acoustic modes at Gamma.
 
@@ -392,9 +392,9 @@ The TD-SCHA provides automatically a very simple way to plot the spectra with th
 tdscha-plot-data IR_x.npz 0 200 0.5
 ```
 
-The first argument is the file in which the lanczos calculation is performed, then we give a range of frequencies (in cm-1), here from 0cm-1 to 200cm-1, the last one is the smearing (in cm-1) used to plot the spectra.
+The first argument is the file containing the Lanczos results. The next two arguments set the frequency range (in cm$^{-1}$), here from 0 to 200. The last argument is the smearing (in cm$^{-1}$) used to broaden the spectra.
 This command-line provides a quick way to plot the spectra.
-However, if you want more control, we can get the spectrum directly in python.
+However, if you want more control, you can compute the spectrum directly in Python.
 
 The example script that plots the spectrum is `plot_spectrum.py`.
 
@@ -488,8 +488,8 @@ The function of the python script `get_green_function_continued_fraction` uses t
                                                                    use_terminator = TERMINATOR)
 ```
 
-This function takes as input the frequency ``\omega`` (in Ry units), the smearing ``\eta``, and if to use or not a *terminator*.
-The terminator is a trick to reach the ``N\to\infty`` limit (where ``N`` is the number of iterations). Empirically, we see that after a certain number of iteration, the coefficients ``a_i`` and ``b_i`` oscillate around a specific value. Therefore we can fill all the values for ``i>N`` with the average value of the coefficient, and simulate an infinite continued fraction. The infinite continued fraction can be solved analytically:
+This function takes as input the frequency ``\omega`` (in Ry units), the smearing ``\eta``, and whether to use a *terminator*.
+The terminator is a trick to reach the ``N\to\infty`` limit (where ``N`` is the number of iterations). Empirically, we see that after a certain number of iterations, the coefficients ``a_i`` and ``b_i`` oscillate around a specific value. Therefore we can fill all the values for ``i>N`` with the average value of the coefficient, and simulate an infinite continued fraction. The infinite continued fraction can be solved analytically:
 
 $$
 G_\infty(z) = \frac{1}{a_\infty - z^2 - b_\infty G_\infty(z)}
@@ -502,12 +502,12 @@ By solving this equation, we can replace the last fraction with the ``G_\infty(z
 
 > **Exercise:**
 >
-> Compute the Lanczos with the SSCHA auxiliary frequencies, the bubble approximation and without any approximation, and check the differences.
+> Compute the IR spectrum using the three different approximations: harmonic (SSCHA auxiliary frequencies), the bubble approximation (3-phonon only), and the full TD-SCHA (including 4-phonon scattering). Compare the results.
 
 
 > **Question:**
 >
-> Is this calculation enough, or do we need to compute also the response function for other perturbation, like y and z? Will something change in the spectrum if we do? Why?
+> Is this calculation enough, or do we also need the response function for other perturbations, like y and z? Will something change in the spectrum if we do? Why?
 
 > **Exercise:**
 >
@@ -519,9 +519,9 @@ By solving this equation, we can replace the last fraction with the ``G_\infty(z
 
 ## Raman Response
 
-The Raman response is very similar to the IR. Raman probes the fluctuations of the polarizability instead of those of the polarization, and it occurs when the sample interacts with two light sources: the incoming electromagnetic radiation and the outgoing one. The outgoing radiation has a frequency that is shifted with respect to the incoming one by the energy of the scattering phonons. The signal on the red side of the pump is called Stokes, while the signal on the blue side is the Anti-Stokes. Since the outgoing radiation has higher energy than the incoming one in the Anti-Stokes, it is generated only by existing (thermally excited) phonons inside the sample, and therefore it has a lower intensity than the Stokes.
+The Raman response is very similar to the IR. Raman probes the fluctuations of the polarizability instead of those of the polarization, and it occurs when the sample interacts with two light sources: the incoming electromagnetic radiation and the outgoing one. The outgoing radiation has a frequency that is shifted with respect to the incoming one by the energy of the scattering phonons. The signal on the red side of the pump is called Stokes, while the signal on the blue side is the Anti-Stokes. Since the outgoing radiation has higher energy than the incoming one in the Anti-Stokes, it is generated only by existing (thermally excited) phonons inside the sample. As a result, the Anti-Stokes signal has a lower intensity than the Stokes.
 
-If we insert this into the expression for the intensity, the average between the positions is the atomic Green's function divided by the square root of the masses, giving:
+Using the relation between polarizability and atomic displacements, the Raman intensity becomes:
 
 $$
 I(\omega) \propto \sum_{ab} \frac{\Xi_{xy a} \Xi_{xy b}}{\sqrt{m_a m_b}} \left[ -\text{Im} G_{ab}(\omega) \right](n(\omega) + 1)
@@ -548,7 +548,7 @@ Indeed, we need the Raman tensor $\Xi_{xya}$ defined within the dynamical matrix
 For the cubic phase, $\Xi_{abc}$ is zero by symmetry, therefore there is no Raman active mode.
 To compute the Raman response, we need a lower symmetry phase.
 
-In this case, we take the tetragonal ($\beta$) phase of CsSnI$_3$.
+In this case, we take the tetragonal ($\beta$) phase of CsPbI$_3$.
 We provide inside the `Materials` directory an already performed SSCHA relaxation at 300 K (`sscha_auxiliary_tetra_` files)
 
 Also in this case, we need to perform a new final relaxation. This final relaxation can be performed with the `last_sscha_minim_tetra.py`, which is very similar to the script we employed for the cubic phase
@@ -679,7 +679,7 @@ if __name__ == "__main__":
 Also this script is very similar to the IR one, with a few main differences:
 
 1. We load the data of the tetragonal phase.
-2. The raman initialization
+2. The Raman initialization
 
 Let us focus on the Raman initialization:
 
@@ -693,13 +693,13 @@ Let us focus on the Raman initialization:
 ```
 
 In this case, we need an incoming field polarization and an outgoing field polarization.
-The simultaneous presence of incoming and outgoing radiation generates a force on the atoms 
-that generate phonons inside the material.
+The simultaneous presence of incoming and outgoing radiation generates a force on the atoms, 
+which excites phonons inside the material.
 
 The result is the following
 
 <center>
-![Raman spectrum with 200 iterations of the Lanczos algorithm along the x polarization for both incoming an the outgoing radiation](Raman_xx_spectrum.png){ width=60% }
+![Raman spectrum with 200 iterations of the Lanczos algorithm along the x polarization for both incoming and outgoing radiation](Raman_xx_spectrum.png){ width=60% }
 </center>
 
 > **Exercise:**
@@ -751,7 +751,7 @@ $$
 The total intensity of unpolarized Raman is:
 
 $$
-I_{unpol}(\omega) = 45 \cdot I_a(\omega) + 7 \cdot \sum_{i=1}^6 I_{B_i}(\omega)
+I_{\text{unpol}}(\omega) = 45 \cdot I_A(\omega) + 7 \cdot \sum_{i=1}^6 I_{B_i}(\omega)
 $$
 
 The tdscha code implements a way to compute each perturbation separately. For example, the Raman response related to $I_A$ is calculated with:
@@ -797,6 +797,6 @@ Or, if the calculation is heavy, it could be  run in parallel by simply running 
 
 > **Exercise:**
 >
-> Compute the unpolarized Raman spectrum of CsSnI$_3$ and plot the results.
+> Compute the unpolarized Raman spectrum of CsPbI$_3$ and plot the results.
 
 
