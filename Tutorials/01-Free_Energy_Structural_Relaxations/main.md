@@ -350,6 +350,7 @@ sscha-plot-data minimization_data
 ```
 by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`.
 
+Be careful that the number of configurations used is rather low and one should check convergence with respect to the number of configurations. One way of checking that is by running a final new step with more configurations starting from the result obtained at the end of the minimization.
 
 > **Exercise:**
 >
