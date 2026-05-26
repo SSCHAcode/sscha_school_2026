@@ -1,0 +1,12 @@
+&control
+dump_gR=.true.,
+prefix='MoS2',
+elphmat_dir="./mat_elem/"
+/
+&electrons
+/
+&phonons
+nq1=8,
+nq2=8,
+nq3=1,
+/

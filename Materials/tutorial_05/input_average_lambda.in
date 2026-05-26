@@ -1,0 +1,12 @@
+&input_lambda
+prefix='MoS2'
+n_mustar=15
+lkp_sequential=.true.
+mu_min=0.01
+mu_max=0.15
+sigma_min=0.01,
+sigma_max=0.02,
+nsigma=2,
+&end
+AUTOMATIC
+12 12 1 0 0 0

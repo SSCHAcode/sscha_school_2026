@@ -1,0 +1,36 @@
+&control
+dump_gR=.false.,
+read_dumped_gr=.true.,
+prefix='MoS2',
+calculation='ph_linewidth',
+elphmat_dir="./mat_elem/"
+&end
+&electrons
+ngauss=0,
+sigma_min=0.01,
+sigma_max=0.02
+nsigma=2,
+&end
+&phonons
+use_alternative_dyn=.true.
+prefix_alt_dyn='./dyn_mat/dynq'
+Fourier_interp_dyn=.true.,
+nq1=8,nq2=8,nq3=1,
+&end
+k-points
+automatic
+8 8 1 0 0 0
+q-points
+crystal
+11
+0.001 0 0 1
+0.05 0 0 1
+0.10 0 0 1
+0.15 0 0 1
+0.20 0 0 1
+0.25 0 0 1
+0.30 0 0 1
+0.35 0 0 1
+0.40 0 0 1
+0.45 0 0 1
+0.50 0 0 1
