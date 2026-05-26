@@ -20,8 +20,6 @@ In the interest of time, in this hands-on session the following starting data ar
 4. Harmonic dynamical matrices (as a reference)
    $D^{HARM}_{\mu,\nu}(\mathbf{k},\mathbf{q})$.
 
-
-
 **Attention**
 
 A folder prepared for you with these data for the present tutorial can be downloaded in the `Materials/tutorial_05` folder in the sscha school 2026 github repository. The folder contains
@@ -34,16 +32,16 @@ Place all the downloaded material where you intend to run the tutorial.
 
 ### Download EPIq
 
-To download epiq, enter the folder where you want to install epiq in your virtual machine and write on the command line 
+To download epiq, enter the folder where you want to install epiq in your virtual machine and type on the command line 
 
 ```console
 git clone --depth 1  --branch develop https://gitlab.com/the-epiq-team/epiq.git 
 ```
 
-and then install it as follows
+then, enter the just created  with `cd epiq` and install it typing the following command
 
 ```console
-./configure && make all
+./configure && make all CC="gcc -std=gnu89"
 ```
 
 all the executables (.x files) will be installed in epiq/bin.   
@@ -129,14 +127,11 @@ Notice, in particular, the following paramters:
 
 - `dump_gR` in the namelist `control` tell the program to save the auxiliary file containing the Hamiltonian and the electron-phonon coupling matrix elements in real space. Since we are not calculating any property of the system the namelist `electron` and `phonons` are essentially empty. Only `nq1,nq2,nq3` have to be supplied in order to specifie the q-points mesh where the input electron-phonon coupling matrix elements were computed (in this case, a 8x8x1 q-grid).
 
-
 **Note**
-
 
 In order to keep everything tidy you can use keep the el-ph matrix elements in a separate folder and use the variable `elphmat_dir` in the control namelist:
 
 *&control $\to$ elphmat_dir = "path_to_folder"*
-
 
 Run this preliminary calculation using:
 
@@ -170,7 +165,6 @@ plot the averaged modulus of the electron-phonon matrix elements as a
 function of the distance in real space $|R|$. Are they localized?
 
 ## Exercise phase: calculation of electron-phonon coupling related properties for doped monolayer ${\rm MoS}_2$
-
 
 The phonon-electron linewidth $\gamma_{\mathbf{q},\nu}$ is a central quantity in conventional superconductivity theory. In the double delta (Allen) form is defined by the following equation:
 
@@ -244,8 +238,6 @@ Compute the linewidth at $\mathbf{q}=\mathbf{M}$ using anharmonic dynamical matr
 
 More than one  q-point can be specified in the phonon linewidth input file. For example:
 
-
-
 ```fortran
 crystal
  3
@@ -255,8 +247,6 @@ crystal
 ```
 
  A plottable file can then be obtained after the phonon linewidth calculation using the `linewidth_path.x` post-processing tool. Here is an example input file:
-
-
 
 > ```fortran
 > &input_lambda
@@ -300,8 +290,6 @@ You can then use the following gnuplot script plots the q-resolved linewidth for
 **Exercise3:**
 
 Try to produce two plots of the phonon dispersion along the \Gamma-\mathbf{M} high-symmetry line in the BZ, one employing the harmonic matrices and one with the anharmonic ones. Do you observe any differences?
-
-
 
 ## Explanation and details: Phonon linewidth calculation
 
@@ -495,8 +483,6 @@ $$
 $$
 
 while the logharitmic average frequency is: $\omega_{\ln} = \exp\left[\frac{2}{\lambda}\int_0^{\infty}\frac{\alpha^2F(\omega)}{\omega}\ln(\omega) d\omega\right]$
-
-
 
 To calculate the q-sum appearing in the Eliashberg function, we would like to calculate the linewidths on a grid. In order to do so, we only have to modify the q-points part of the linewidth input file as follows: 
 
