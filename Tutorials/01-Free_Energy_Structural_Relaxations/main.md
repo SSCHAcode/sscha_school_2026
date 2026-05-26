@@ -340,6 +340,10 @@ relax.minim.ensemble.save_bin("data", 1)
 relax.minim.dyn.save_qe("sscha_auxiliary_dyn_")
 ```
 
+This script can be run as: 
+```bash
+python sscha_relax.py > sscha_relax.log
+```
 With this script the minimization continues until the gadients of the free energy become smaller than the input value, realtive to the error. In this case, the final dynamical matrices are stored in `sscha_auxiliary_dyn_`. The evolution of the minimization can be visualized more clearly using the following command
 ```bash
 sscha-plot-data minimization_data
@@ -418,7 +422,10 @@ relax.vc_relax(target_press = 0)
 relax.minim.ensemble.save_bin("data", 1)
 relax.minim.dyn.save_qe("sscha_auxiliary_dyn_")
 ```
-
+This script can be run as: 
+```bash
+python sscha_vcrelax.py > sscha_vcrelax.log
+```
 The final auxiliary dynamical matrices in this case will correspond to a different lattice parameter as specified in the `sscha_auxiliary_dyn_` files.
 
 > **Exercise:**
