@@ -24,7 +24,7 @@ TEMPERATURE = 450 # K
 NQIRR = 4
 START_DYN = "../../Materials/CsPbI3_cubic_harmonic_"
 POTENTIAL = "../../Materials/GAP_1.xml"
-N_CONFIGS = 50  
+N_CONFIGS = 50 
 
 
 # Load the harmonic dynamical matrix
@@ -53,7 +53,8 @@ ioinfo = sscha.Utilities.IOInfo()
 ioinfo.SetupSaving("minimization_data")
 relax.setup_custom_functions(custom_function_post = ioinfo.CFP_SaveAll)
 
-relax.relax()
+# We perform a variable cell relaxation with the target pressure in GPaf 
+relax.vc_relax(target_press = 0)
 
 # Save the final ensemble
 relax.minim.ensemble.save_bin("data", 1)
