@@ -269,12 +269,6 @@ python minimize.py > population1.log
 ```
 The evolution of the minimization can be seen in the `population1.log` file, where in the end we will see why the minimization stopped, the obtained free energy in the unit cell, the gradients of the free energy, effective Kong-Liu sampling, the force on the centroids, and the stress tensor. The minimization probably stopped because the statistical sampling worsened beyond the input criteria. The obtained auxiliary dynamical matrices and positions are stored in the files `dyn_end_population1_*`.
 
-THe evolution of the minimization can be visualized more clearly using the following command
-```bash
-sscha-plot-data minim_1
-```
-by plotting the evolution of the minimizaton stored in the files `minim_1.freqs` and `minim_1.dat`.
-
 > **Exercise:**
 >
 > Considering that the minimization stopped because it got out of the statistical range, perform a new minimization step (population = 2) starting from the output of the first minimization.
@@ -346,7 +340,12 @@ relax.minim.ensemble.save_bin("data", 1)
 relax.minim.dyn.save_qe("sscha_auxiliary_dyn_")
 ```
 
-With this script the minimization continues until the gadients of the free energy become smaller than the input value, realtive to the error. In this case, the final dynamical matrices are stored in `sscha_auxiliary_dyn_`.
+With this script the minimization continues until the gadients of the free energy become smaller than the input value, realtive to the error. In this case, the final dynamical matrices are stored in `sscha_auxiliary_dyn_`. The evolution of the minimization can be visualized more clearly using the following command
+```bash
+sscha-plot-data minimization_data
+```
+by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`.
+
 
 > **Exercise:**
 >
