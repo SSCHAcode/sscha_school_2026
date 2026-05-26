@@ -348,8 +348,11 @@ With this script the minimization continues until the gadients of the free energ
 ```bash
 sscha-plot-data minimization_data
 ```
-by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`.
-
+by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`. We should get something like:
+<figure>
+  <img src="../figures/Minimization_Evolution.png">
+  <figcaption>Figure 1. Evolution of the free energy, gradients with respect to the force constants and positions, and Kong Liu ratio along the minimization. The width of the points is related to the stochasti error. </figcaption>
+</figure>
 Be careful that the number of configurations used is rather low and one should check convergence with respect to the number of configurations. One way of checking that is by running a final new step with more configurations starting from the result obtained at the end of the minimization.
 
 > **Exercise:**
