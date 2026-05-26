@@ -1,6 +1,6 @@
 # Hands-on Session 1 - First SSCHA Simulations: Free Energy and Structural Relaxations
 
-In this hands-on session, we provide few simple examples of how to use the SSCHA code for its most basic calculations: free energy calculations and structural relaxations considering anharmonic effects. The example will be based on calculations performed using a GAP machine learning potential for the $Pm-3m$ phase of CsPbI$_3$ perovskite structure.
+In this hands-on session, we provide few simple examples of how to use the SSCHA code for its most basic calculations: free energy calculations and structural relaxations considering anharmonic effects. The example will be based on calculations performed using a GAP machine learning potential for the $Pm-3m$ phase of $CsPbI_3$ perovskite structure.
 
 The variational minimization of the free energy within the SSCHA requires several steps:
 
@@ -16,7 +16,7 @@ In this tutorial we will show how to perform such calculations, starting from th
 
 ##  A standard manual calculation with an external force engine
 
-The starting ionic (centroid) positions and force constants are read by the SSCHA from Quantum Espresso dynamical matrix files. We provide some harmonic calculations for CsPbI$_3$ in the folder `sscha_school_2026/Materials/CsPbI3_cubic_harmonic_*`. In these files the structure of the crystal is given, and each of the files corresponds to the force constants matrix obtained in reciprocal space for all the irreducible q points in a $2 \times 2 \times 2$ grid. In this case there are 4 different q points in the irreducible grid. This is enough to create the force constants in a commensurate $2 \times 2 \times 2$ supercell.
+The starting ionic (centroid) positions and force constants are read by the SSCHA from Quantum Espresso dynamical matrix files. We provide some harmonic calculations for $CsPbI_3$ in the folder `sscha_school_2026/Materials/CsPbI3_cubic_harmonic_*`. In these files the structure of the crystal is given, and each of the files corresponds to the force constants matrix obtained in reciprocal space for all the irreducible q points in a $2 \times 2 \times 2$ grid. In this case there are 4 different q points in the irreducible grid. This is enough to create the force constants in a commensurate $2 \times 2 \times 2$ supercell.
 
 In this first example we will do all the steps of the SSCHA minimization separately, one by one. In the first step we will read the input positions and force constants from the harmonic dynamical matricesand create 50 random configurations based on probability distribution functions defined by these positions and force constants. This is done by the stript `sscha_school_2026/Tutorials/01-Free_Energy_Structural_Relaxations/create_configurations.py`, which is copied here:
 
