@@ -439,7 +439,8 @@ The final auxiliary dynamical matrices in this case will correspond to a differe
 > You should obtain something like that
 </figure>
 <figure>
-  <img src="./figures/Freq_Evolution.png">
+  <img src="./figures/Lattice_Parameter.png">
   <figcaption>Figure 3. Lattice parameter obained at different temperatures. </figcaption>
 </figure>
+> 
 > As you can see the result is not very smooth although a clear positive trend is seeing. This calculations was perfomred with only 50 configurations per population. This noisy result suggests that the result can improve with more configurations.
