@@ -32,6 +32,7 @@ Place all the downloaded material where you intend to run the tutorial.
 
 ### Download EPIq
 
+First, deactivate the conda environment if it is active, typing `conda deactivate`.
 To download epiq, enter the folder where you want to install epiq in your virtual machine and type on the command line 
 
 ```console
@@ -339,7 +340,7 @@ Let 's start again from the example file we considered for the calculation for p
 
 #### Output files
 
-If the `out2json` flat is set to `.true.`, the file `MoS2_lambda.json` will be produced. It can be automatically parsed using python as in the following lines where the variable `q_pts` is a "dict" whose entries are the results of the calculation for each q-point.
+If the `out2json` flat is set to `.true.`, the file `MoS2_lambda.json` will be produced. It can be automatically parsed using python as in the following lines where the variable `q_pts` is a "dict" whose entries are the results of the calculation for each q-point. To plot the results, first activate the conda environment with `conda activate sscha`.
 
 ```python
 import json
@@ -370,11 +371,8 @@ for q in list(q_pts.values())[:]:
     plt.show()
 ```
 
-The other output file, `MoS2_lambda.d`, contains all the properties
-calculated by EPIq. The way this file is formatted is specified in
-output file, `lw.out`. Notice in particular that the first column
-contains the electronic smearing, while the second column contains the
-Allen linewidth.
+Remember to deactivate the environment when running epiq. 
+The other output file, `MoS2_lambda.d`, contains all the properties calculated by EPIq. The way this file is formatted is specified in output file, `lw.out`. Notice in particular that the first column contains the electronic smearing, while the second column contains the Allen linewidth.
 
 #### Dispersion along a line
 
