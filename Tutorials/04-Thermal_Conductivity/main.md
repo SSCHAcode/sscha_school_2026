@@ -224,7 +224,20 @@ The second- and third-order force constants must be converged with respect to bo
   <figcaption>Figure 1. Convergence study of the phonon band structure with respect to supercell size and the number of configurations.</figcaption>
 </figure>
 
-To calculate the thermal conductivity using force constants obtained with different numbers of configurations, we can use the following script:
+First, we calculate the lattice thermal conductivity using the single relaxation time approximation (**SRTA**). In this approximation, the thermal-conductivity tensor is written as
+
+$$
+\kappa^{xy}
+=
+\frac{1}{N V}
+\sum_{\mathbf{q}, j}
+v^{x}_{\mathbf{q}, j}
+v^{y}_{\mathbf{q}, j}
+c_{\mathbf{q}, j}
+\tau_{\mathbf{q}, j}.
+$$
+
+Here, \(N\) is the number of **q** points, \(V\) is the unit-cell volume, \(v^{x}_{\mathbf{q}, j}\) and \(v^{y}_{\mathbf{q}, j}\) are the phonon group-velocity components, \(c_{\mathbf{q}, j}\) is the mode heat capacity, and \(\tau_{\mathbf{q}, j}\) is the phonon lifetime for phonon mode \(j\) at wave vector \(\mathbf{q}\). To calculate the thermal conductivity using force constants obtained with different numbers of configurations, we can use the following script:
 
 ```python
 from __future__ import division, print_function
