@@ -226,7 +226,7 @@ The second- and third-order force constants must be converged with respect to bo
 
 First, we calculate the lattice thermal conductivity using the single relaxation time approximation (**SRTA**). In this approximation, the thermal-conductivity tensor is written as
 
-\[
+```math
 \kappa^{xy}
 =
 \frac{1}{N V}
@@ -235,9 +235,9 @@ v^{x}_{\mathbf{q}, j}
 v^{y}_{\mathbf{q}, j}
 c_{\mathbf{q}, j}
 \tau_{\mathbf{q}, j}.
-\]
+```
 
-Here, \(N\) is the number of **q** points, \(V\) is the unit-cell volume, \(v^{x}_{\mathbf{q}, j}\) and \(v^{y}_{\mathbf{q}, j}\) are the phonon group-velocity components, \(c_{\mathbf{q}, j}\) is the mode heat capacity, and \(\tau_{\mathbf{q}, j}\) is the phonon lifetime for phonon mode \(j\) at wave vector \(\mathbf{q}\). To calculate the thermal conductivity using force constants obtained with different numbers of configurations, we can use the following script:
+Here, $`N`$ is the number of **q** points,  $`V`$ is the unit-cell volume,  $`v^{x}_{\mathbf{q}, j}`$ and  $`v^{y}_{\mathbf{q}, j}`$ are the phonon group-velocity components,  $`c_{\mathbf{q}, j}`$ is the mode heat capacity, and  $`\tau_{\mathbf{q}, j}`$ is the phonon lifetime for phonon mode  $`j`$ at wave vector  $`\mathbf{q}`$. To calculate the thermal conductivity using force constants obtained with different numbers of configurations, we can use the following script:
 
 ```python
 from __future__ import division, print_function
