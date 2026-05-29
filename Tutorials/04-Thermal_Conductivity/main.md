@@ -432,6 +432,10 @@ tc.calculate_kappa(
 </figure>
 
 Finally, we can calculate the lattice thermal conductivity with the Green-Kubo method:
+```math
+        \kappa ^{xy} = \frac{2\pi\beta ^2k_{B}}{NV}\sum _{\mathbf{q},j,j'}v^{x}_{\mathbf{q},j,j'}v^{y*}_{\mathbf{q},j,j'}\omega _{\mathbf{q},j}\omega _{\mathbf{q},j'}\int_{-\infty}^{\infty}\textrm{d}\Omega \frac{\exp(\beta\Omega)}{\left(\exp(\beta\Omega) - 1\right)^2}\sigma _{\mathbf{q},j}(\Omega)\sigma_{\mathbf{q},j'}(\Omega)
+```
+Here the $`\sigma _{\mathbf{q},j}`$ is phonon spectral function. The python script that does the calculation is:
 
 ```python
 from __future__ import division, print_function
