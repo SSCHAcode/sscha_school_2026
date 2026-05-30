@@ -8,6 +8,14 @@ echo "Building combined markdown with adjusted paths..."
 
 > "$TMP_MD"
 
+setups_md="00-Setup/main.md"
+if [ -f "$setups_md" ]; then
+  echo "" >> "$TMP_MD"
+  echo '\newpage' >> "$TMP_MD"
+  echo "" >> "$TMP_MD"
+  sed -E 's#(!\[.*\]\()([^)]+)\)#\100-Setup/\2)#g' "$setups_md" >> "$TMP_MD"
+fi
+
 for dir in 01-* 02-* 03-* 04-* 05-*; do
   md="$dir/main.md"
   if [ ! -f "$md" ]; then
