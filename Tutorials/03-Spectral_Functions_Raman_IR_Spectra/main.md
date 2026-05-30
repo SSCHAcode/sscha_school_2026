@@ -1,9 +1,33 @@
 # Hands-on Session 3 - Spectral functions, Raman and infrared spectra with the Time-Dependent SSCHA
 
+## Setup
+
+This tutorial focuses on the computation of dynamical properties of materials. 
+To run, it requires the `quippy-ase` force field, a converged SSCHA calculation on the system CsPbI$_3$,
+and the DFT calculation of Raman tensor and Born effective charges.
+You can find the all the materials inside the `Materials/tutorial_03` folder of the repository. 
+Copy all these files in your working directory. 
+Also, remember to adjust the relative path to the `GAP_1.xml` file for the force field with respect to your
+working directory in all the scripts.
+
+To run the calculations, be sure to be inside the anaconda `sscha` environment. To enter in this environmnet,
+from the terminal run
+
+```bash
+conda activate sscha
+```
+
+This command needs to be run every time a new terminal is open. 
+If you have not yet done so, once inside the `sscha` environment, install quippy-ase with the command
+
+```pyton
+pip install quippy-ase
+```
+
+
 
 ## Theoretical background
 
-This tutorial focuses on the computation of dynamical properties of materials.
 The key quantity which is measured by experiments is the *dynamical response function* $\chi(\omega)$.
 The response function probes how the material responds to a time-dependent external perturbation.
 We can model any experiment as follows: the material is in equilibrium for $t < t_0$, then a perturbation is turned on at $t_0$, and we measure a property $A$ at a later time $t$. The measured response is the convolution of the perturbation over all intervening times, weighted by the response function $\chi(t-t')$, which describes how perturbations propagate in time:

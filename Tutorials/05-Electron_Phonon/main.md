@@ -290,7 +290,7 @@ You can then use the following gnuplot script plots the q-resolved linewidth for
 
 **Exercise3:**
 
-Try to produce two plots of the phonon dispersion along the \Gamma-\mathbf{M} high-symmetry line in the BZ, one employing the harmonic matrices and one with the anharmonic ones. Do you observe any differences?
+Try to produce two plots of the phonon dispersion along the $\Gamma-\mathbf{M}$ high-symmetry line in the BZ, one employing the harmonic matrices and one with the anharmonic ones. Do you observe any differences?
 
 ## Explanation and details: Phonon linewidth calculation
 
@@ -472,8 +472,6 @@ and the Eliashberg function is defined as
 $$
 \alpha^2 F(\omega) = \frac{1}{N(E_F)} \sum_{\mathbf{k}qv} \sum_{nm} \left| g_{\mathbf{k}+\mathbf{q},\mathbf{k}}^{v,mn} \right|^2
 \times \delta(\omega - \omega_{\mathbf{q}v}) \delta(\epsilon_{\mathbf{k}+\mathbf{q}}^m - \epsilon_F) \delta(\epsilon_{\mathbf{k}}^n - \epsilon_F)
-
-
 $$
 
 $$
