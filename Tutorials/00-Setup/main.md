@@ -40,8 +40,18 @@ pip install quippy-ase F3ToyModel
 
 You are now ready for the hands-on sessions 1-4.
 
+## EPIq installation
 
-## EPIq installation 
+Deactivate the conda environment if it is active, typing `conda deactivate`. Enter the folder where you want to install epiq in your virtual machine and type on the command line 
 
+```console
+git clone --depth 1  --branch develop https://gitlab.com/the-epiq-team/epiq.git 
+```
 
+then, enter the just created  directory with `cd epiq` and install it typing the following command
 
+```console
+./configure && make all CC="gcc -std=gnu89"
+```
+
+all the executables (.x files) will be installed in epiq/bin.
