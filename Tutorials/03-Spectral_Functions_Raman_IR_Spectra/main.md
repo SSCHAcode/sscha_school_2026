@@ -2,7 +2,7 @@
 
 ## Setup
 
-This tutorial focuses on the computation of dynamical properties of materials. 
+This tutorial is about the computation of dynamical properties of materials, focusing on Raman and IR spectroscopy.
 To run, it requires the `quippy-ase` force field, a converged SSCHA calculation on the system CsPbI$_3$,
 and the DFT calculation of Raman tensor and Born effective charges.
 You can find the all the materials inside the `Materials/tutorial_03` folder of the repository. 
@@ -30,7 +30,8 @@ pip install quippy-ase
 
 The key quantity which is measured by experiments is the *dynamical response function* $\chi(\omega)$.
 The response function probes how the material responds to a time-dependent external perturbation.
-We can model any experiment as follows: the material is in equilibrium for $t < t_0$, then a perturbation is turned on at $t_0$, and we measure a property $A$ at a later time $t$. The measured response is the convolution of the perturbation over all intervening times, weighted by the response function $\chi(t-t')$, which describes how perturbations propagate in time:
+We can model any experiment as follows: the material is in equilibrium for $t < t_0$, then a perturbation is turned on at $t_0$, and we measure a property $A$ at a later time $t$. 
+The measured response is the convolution of the perturbation over all intervening times, weighted by the response function $\chi(t-t')$, which describes how perturbations propagate:
 $$
 A(t) = A_0 + \int_{t_0}^t dt' \chi(t - t') F(t')
 $$
@@ -49,7 +50,7 @@ $$
 \chi(t) = \frac{i}{\hbar}\theta(t)\left\langle M(t)M(0)\right\rangle
 $$
 where $\hat M(t)$ is the dipole moment operator in the Heisenberg picture, and $\left\langle\cdot\right\rangle$ is the quantum average at finite temperature.
-The Time-Dependent SSCHA (TD-SCHA) extends the SSCHA framework to compute dynamical response functions. Here we will use the Lanczos algorithm to compute the response function in Fourier space, which is more efficient than computing it in time and then Fourier transforming it.
+The Time-Dependent SCHA (TD-SCHA) extends the SSCHA framework to compute dynamical response functions. Here we will use the Lanczos algorithm to compute the response function in Fourier space, which is more efficient than computing it in time and then Fourier transforming it.
 
 The first step is to convert the dipole operator in phonons creation and annihilation operators. To this aim, we can approximate the dipole moment as a linear function of the atomic displacements $\hat u$:
 $$
@@ -60,6 +61,9 @@ $$
 Z^i_{\alpha\beta} = \frac{\partial M_\alpha}{\partial u^i_\beta} = \frac{\partial^2 \mathcal E}{\partial u^i_\beta \partial E_\alpha}
 $$
 where $E_\alpha$ is the electric field in the $\alpha$ Cartesian direction, $u^i_\beta$ is the displacement of atom $i$ in the $\beta$ Cartesian direction, and $\mathcal E$ is the total energy of the system (Born-Oppenheimer).
+Born effective charges $Z^i_{\alpha\beta}$ are quantities that can be computed via density functional perturbation theory (DFPT). We will provide two example
+scripts on how to perform such a calculation using quantum-espresso without going into the details.
+
 Using this in the expression of the susceptibility, we obtain:
 $$
 \chi_{\text{IR}\alpha}(t) = \sum_{ij}\sum_{\beta\gamma} \frac{Z^i_{\alpha\beta} Z^j_{\alpha\gamma}}{\sqrt{m_i m_j}}\sqrt{m_im_j} \left\langle\hat u^i_\beta(t) \hat u^j_\gamma(0)\right\rangle
@@ -80,7 +84,7 @@ $$
 $$
 \Xi^i_{\alpha\beta\gamma} = \frac{\partial \alpha_{\alpha\beta}}{\partial u^i_\gamma} = \frac{\partial^3 \mathcal E}{\partial u^i_\gamma \partial E_\alpha \partial E_\beta}
 $$
-where $\Xi^i_{\alpha\beta\gamma}$ is the Raman tensor, which is the third derivative of the total energy (Born-Oppenheimer) with respect to the atomic displacements and the two electric fields (incoming-outgoing).
+where $\Xi^i_{\alpha\beta\gamma}$ is the Raman tensor, which is the third derivative of the total energy (Born-Oppenheimer) with respect to the atomic displacements and the two electric fields (incoming-outgoing). Also the Raman tensor can be computed from DFPT, and the tutorials provides scripts to perform this calculation via quantum espresso.
 
 Notably, the Raman requires two electric fields because it is a scattering, where incoming and outcoming radiation are different. The IR instead is an absorption/emission, where incoming and outcoming radiation are the same.
 
@@ -126,21 +130,22 @@ $$
 Computing the full inversion of the self-energy for every value of the frequency is computationally extremely expensive.
 It is possible, with an efficient algorithm (Lanczos), to show that the Green's function can be obtained by inverting a special matrix, see [Monacelli, Mauri, Physical Review B 103, 104305, 2021](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.103.104305).
 
-In this tutorial, we will use this Lanczos algorithm to compute the phonon Green's function and, consequently, the IR spectrum of CsPbI3.
+In this tutorial, we will use this Lanczos algorithm to compute the phonon Green's function and, consequently, the IR and Raman spectrum of cubic and tetragonal CsPbI3.
 
-To run these calculations, we need the `tdscha` package (it is recommended to configure it with the Julia speedup to run faster; see the installation guide).
+To run these calculations, we need the `tdscha` package (already installed in the virtual machine).
+
 
 ## Tutorial
 
 We need to first relax a complete SSCHA calculation, exactly as for the free energy hessian.
-This can be performed via the `sscha_relax.py` script, which performs an automatic (fixed volume) sscha relaxation from the Harmonic dynamical matrix
-using 256 configurations.
+The familiar `sscha_relax.py` script performs an automatic (fixed volume) sscha relaxation from the Harmonic dynamical matrix
+using 256 configurations. Since this calculation has been argument of the first tutorial, we will assume to already have the results.
 
-We provide the final result already as `sscha_auxiliary_dyn_` files.
+Inside the `Materials` directory (subdirectory `tutorial_03`), we provide the final result of the SSCHA relaxation as `sscha_auxiliary_dyn_` files.
 The first step for a dynamical linear response calculation is to have a very well converged auxiliary dynamical matrix.
-For this purpose, it is useful to run an additional minimization with a higher number of configurations once the initial relaxation is done.
+For this purpose, it is useful to run an additional minimization with a higher number of configurations once the initial sscha calculation is done.
 
-This is done by the script `last_sscha_minim.py` which we will analyze in the next section.
+This is performed by the script `last_sscha_minim.py` which we will analyze in the next section.
 
 ```python
 import sys, os
@@ -153,8 +158,8 @@ from quippy.potential import Potential
 TEMPERATURE = 450 # K
 NQIRR = 4
 START_DYN = "sscha_auxiliary_dyn_"
-POTENTIAL = "../../Materials/GAP_1.xml"
-N_CONFIGS = 1024
+POTENTIAL = "../../Materials/GAP_1.xml" # Replace with your relative path
+N_CONFIGS = 1024 # You can also reduce to 512 if too slow
 POP_ID = 100
 
 
@@ -165,20 +170,21 @@ def last_sscha_relax(temperature = TEMPERATURE):
     # Load the interatomic Potential for CsPbI3
     calc = Potential("IP GAP", param_filename=POTENTIAL)
 
-    # Generate the last esemble
+    # Generate the last esemble with N_CONFIGS random atomic samples
     ensemble = sscha.Ensemble.Ensemble(dyn, temperature)
     ensemble.generate(N_CONFIGS)
 
-    # Compute the energies and forces of the ensemble with the GAP potential
+    # Compute the energies and forces of the atomic samples
     ensemble.compute_ensemble(calc)
 
-    # Compute a full sscha minimization on the new bigger ensemble
+    # Minimize the free eenrgy on the new bigger ensemble
     minim = sscha.SchaMinimizer.SSCHA_Minimizer(ensemble)
     minim.set_minimization_step(0.02)
     minim.meaningful_factor = 0.01
     minim.run()
 
     # Save the final dynamical matrix and ensemble for further calculations
+    # The POP_ID is a unique identifier for the ensemble
     minim.ensemble.save_bin("data", POP_ID)
     minim.dyn.save_qe("sscha_converged_dyn_")
 
@@ -217,7 +223,8 @@ def compute_ir():
     ensemble = sscha.Ensemble.Ensemble(dyn_original, TEMPERATURE)
     ensemble.load_bin("data", POP_ID)
 
-    # Lets load the final converged dynamical matrix
+    # Load the final dynamical matrix
+    # After the highly converged free energy minimization
     final_dyn = CC.Phonons.Phonons(FINAL_DYN, NQIRR)
     
     # To prepare the IR or Raman, we need 
@@ -233,7 +240,7 @@ def compute_ir():
     lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble)
     lanczos.init()
 
-    # Let us define which level of anharmonicity we want
+    # Define which level of anharmonicity we want
     lanczos.ignore_v3 = False # Add bubble contribution if false
     lanczos.ignore_v4 = True # Add RPA resummation if false (a factor 2 slower in speed - no extra memory)
 
@@ -281,7 +288,7 @@ This is achieved by loading the Born effective charges and dielectric tensor fro
     final_dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
 ```
 
-The file `dielectric_calc.pho` is the output of a Quantum ESPRESSO phonon calculation containing the Born effective charges and dielectric tensor. The input files used to generate this output are provided as `dielectric_calc.pwi` and `dielectric_calc.phi`. To write the `dielectric_calc.pwi` file, we first need to extract the structure from the final dynamical matrix, since the Born effective charges must be computed at the final converged centroid positions. This is performed by the file `extract_structure.py`, in particular by the lines:
+The file `dielectric_calc.pho` is the output of a Quantum ESPRESSO DFPT calculation containing the Born effective charges and dielectric tensor. The input files used to generate this output are provided as `dielectric_calc.pwi` and `dielectric_calc.phi`. To write the `dielectric_calc.pwi` file, we first need to extract the structure from the final dynamical matrix, since the Born effective charges must be computed at the final converged centroid positions. This is performed by the file `extract_structure.py`, in particular by the lines:
 
 ```python
     # Load the final converged dynamical matrix
@@ -312,9 +319,11 @@ This file contains the cell parameters (rows of the cell matrix) in Angstrom and
 The two espresso inputs can be run with the following commands (**No need to do it now, it may take time, we already provide the final output files**):
 
 ```bash
-mpirun -np 4 pw.x -npool 4 -i dielectric_calc.pwi > dielectric_calc.pwo
-mpirun -np 4 ph.x -npool 4 -i dielectric_calc.phi > dielectric_calc.pho
+pw.x -i dielectric_calc.pwi > dielectric_calc.pwo
+ph.x -i dielectric_calc.phi > dielectric_calc.pho
 ```
+
+**NOTE:** Quantum-Espresso may restrict which pseudopotential or exchange-correlation potential could be used for the calculation of Born effective charges or Raman tensor. In particular, the latter can be computed at current stage only with norm-conserving pseudo potentials and LDA exchange correlation.
 
 Once the effective charges, Raman Tensor and Dielectric Tensor have been computed, they can be loaded in the final dynamical matrix with the method `ReadInfoFromESPRESSO`, which is used in the line:
 
@@ -444,8 +453,9 @@ def plot_spectrum():
     w_array = np.linspace(W_START, W_END, 2000)
     w_ry = w_array / CC.Units.RY_TO_CM
     smearing_ry = SMEARING / CC.Units.RY_TO_CM
-    green_function = lanczos.get_green_function_continued_fraction(w_ry, smearing=smearing_ry,
-                                                                   use_terminator = TERMINATOR)
+    green_function = lanczos.get_green_function_continued_fraction(w_ry, 
+        smearing=smearing_ry,
+        use_terminator = TERMINATOR)
 
     # The IR spectrum is proportional to - Im (G(w))
     ir_spectrum = -np.imag(green_function)
@@ -469,7 +479,7 @@ The final result is plotted in the following figure
 ![IR Spectrum obtained with the `plot_spectrum.py`.](ir_spectrum.png){ width=60% }
 </center>
 
-#### The continued fraction
+#### Analysis of the plot script - Extracting the Green's Function
 
 In particular, we first load the Lanczos algorithm status:
 
@@ -480,7 +490,7 @@ In particular, we first load the Lanczos algorithm status:
 ```
 
 We then need to compute the Green's function from the Lanczos coefficient.
-The Lanczos algorithm finds an orthonormal basis in which the inverse-response function is a tridiagonal matrix ``\mathcal T``
+The Lanczos algorithm finds an orthonormal basis in which the inverse-response function is a tridiagonal matrix $\mathcal T$
 
 $$
 \mathcal T = \begin{pmatrix}
@@ -499,13 +509,13 @@ $$
 G(\omega + i\eta) =  \left[ \mathcal T - \mathcal I(\omega + i\eta)^2 \right]^{-1}_{1,1}
 $$
 
-where ``\mathcal I`` is the identity matrix. Thanks to the many zeros in the tridiagonal matrix, the inverse of the first element is very easy to compute, and correspond to the following continued fraction:
+where $\mathcal I$ is the identity matrix. Thanks to the many zeros in the tridiagonal matrix, the inverse of the first element is very easy to compute, and correspond to the following continued fraction:
 
 $$
 G(\omega + i\eta) = \frac{1}{a_1 - (\omega + i\eta)^2 - \frac{b_1^2}{a_2 - (\omega + i\eta)^2 - \frac{b_2^2}{a_3 - (\omega + i\eta)^2 - \dots}}}
 $$
 
-The function of the python script `get_green_function_continued_fraction` uses the ``a_i``, ``b_i`` saved inside the `lanczos` object to compute the green function in the frequencies provided in input:
+The function of the python script `get_green_function_continued_fraction` uses the ``a_i``, ``b_i`` saved inside the `lanczos` object (computed at each iterations) to compute the green function in the frequencies provided in input:
 
 ```python
     green_function = lanczos.get_green_function_continued_fraction(w_ry, smearing=smearing_ry,
@@ -513,7 +523,8 @@ The function of the python script `get_green_function_continued_fraction` uses t
 ```
 
 This function takes as input the frequency ``\omega`` (in Ry units), the smearing ``\eta``, and whether to use a *terminator*.
-The terminator is a trick to reach the ``N\to\infty`` limit (where ``N`` is the number of iterations). Empirically, we see that after a certain number of iterations, the coefficients ``a_i`` and ``b_i`` oscillate around a specific value. Therefore we can fill all the values for ``i>N`` with the average value of the coefficient, and simulate an infinite continued fraction. The infinite continued fraction can be solved analytically:
+The terminator is a trick to reach the ``N\to\infty`` limit (where ``N`` is the number of iterations). Empirically, we see that after a certain number of iterations, the coefficients ``a_i`` and ``b_i`` oscillate around a specific value. In this case, we run 40 iterations of the Lanczos algorithm, so we will have $a_1, \cdots, a_{40}$ and $b_1,\cdots,b_{40}$. 
+To make the plot smoother, we can extrapolate all the values of $a_i$ and $b_i$ for ``i>N`` with the average value of the coefficient. The infinite continued fraction can be solved analytically:
 
 $$
 G_\infty(z) = \frac{1}{a_\infty - z^2 - b_\infty G_\infty(z)}
@@ -536,6 +547,11 @@ By solving this equation, we can replace the last fraction with the ``G_\infty(z
 > **Exercise:**
 >
 > Plot the IR data at various smearings and as a function of the number of steps (10, 20, 30, 40). How does the signal change with smearing and the number of steps? Try plotting with and without the terminator and see the differences.
+
+
+> **Exercise:**
+> 
+> Compute the free energy Hessian using the bubble approximation and the green function using a perturbation along that mode. Compare the two results.
 
 
 
