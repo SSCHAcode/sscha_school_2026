@@ -40,39 +40,50 @@ $$
 =
 \Phi
 +
-\stackrel{(3)}{\Phi}
+\Phi^{(3)}
 \Lambda
 \left[
 1
 -
-\stackrel{(4)}{\Phi}
+\Phi^{(4)}
 \Lambda
 \right]^{-1}
-\stackrel{(3)}{\Phi},
+\Phi^{(3)}.
 $$
 
-with $\Phi_{ab}$ the SSCHA force-constant matrix, which is also equal to the
-statistical average of the potential-energy Hessian over the SSCHA probability distribution $\rho$ 
+with $\Phi_{ab}$ the SSCHA force-constant matrix, which is also equal to the statistical average of the potential-energy Hessian over the SSCHA probability distribution $\rho$,
+
 $$
 \Phi_{ab}
 =
-\left\langle \frac{\partial^2 V}{\partial {R_a}\partial {R_b}}  \right\rangle_{\rho}
+\left\langle
+\frac{\partial^2 V}{\partial R_a \partial R_b}
+\right\rangle_{\rho},
 $$
+
 and similarly
+
 $$
-\stackrel{(3)}{\Phi}_{abc}
+\Phi^{(3)}_{abc}
 =
 \left\langle
 \frac{\partial^3 V}{\partial R_a \partial R_b \partial R_c}
 \right\rangle_{\rho},
 \qquad
-\stackrel{(4)}{\Phi}_{abcd}
+\Phi^{(4)}_{abcd}
 =
 \left\langle
 \frac{\partial^4 V}{\partial R_a \partial R_b \partial R_c \partial R_d}
 \right\rangle_{\rho}.
 $$
-The tensor $\Lambda_{abcd}$ depends on the eigenvalues and eigenvectors of the SSCHA dynamical matrix, $D_{ab} = {\Phi_{ab}}/{\sqrt{M_a M_b}}$.
+
+The tensor $\Lambda_{abcd}$ depends on the eigenvalues and eigenvectors of the SSCHA dynamical matrix,
+
+$$
+D_{ab}
+=
+\frac{\Phi_{ab}}{\sqrt{M_a M_b}}.
+$$
 
 The free-energy Hessian can be evaluated within the SSCHA framework using a stochastic approach through the function call:
 ```python
