@@ -1,4 +1,4 @@
-# Hands-on Session 3 - Calculating Second-Order Phase Transitions with the SSCHA
+# Hands-on Session 2 - Calculating Second-Order Phase Transitions with the SSCHA
 
 In this hands-on session, we will learn how to study second-order phase transitions using the SSCHA.
 
