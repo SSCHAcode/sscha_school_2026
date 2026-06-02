@@ -349,6 +349,8 @@ With this script the minimization continues until the gadients of the free energ
 sscha-plot-data minimization_data
 ```
 by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`. We should get something like:
+![Evolution of the free energy, gradients with respect to the force constants and positions, and Kong Liu ratio along the minimization. The width of the points is related to the stochasti error.](./figures/Minimization_Evolution.png){ width=70% }
+![Evolution of the auxiliary frequencies along the minimization.](./figures/Freq_Evolution.png){ width=70% }
 <figure>
   <img src="./figures/Minimization_Evolution.png">
   <figcaption>Figure 1. Evolution of the free energy, gradients with respect to the force constants and positions, and Kong Liu ratio along the minimization. The width of the points is related to the stochasti error. </figcaption>
