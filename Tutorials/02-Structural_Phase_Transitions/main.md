@@ -615,7 +615,7 @@ As the temperature decreases, the free-energy Hessian mode softens continuously 
 > **Question**
 >
 > What temperature dependence is expected for the soft-mode frequency close to a second-order phase transition?
->
+
 > **Answer**
 >
 > Within a mean-field description of a second-order phase transition, the soft-mode frequency is expected to satisfy
