@@ -1,4 +1,4 @@
-# Hands-on Session 9: Thermal Conductivity Calculations with the SSCHA
+# Hands-on Session 4: Thermal Conductivity Calculations with the SSCHA
 
 In previous lessons, we saw how to calculate vibrational properties of materials using the stochastic self-consistent harmonic approximation (SSCHA). In this tutorial, we will use that knowledge to calculate the lattice thermal conductivity of materials.
 
