@@ -39,6 +39,7 @@ echo "  Output: $OUTPUT"
 pandoc "$TMP_MD" \
   --pdf-engine=xelatex \
   --include-in-header=header.tex \
+  --include-before-body=title.tex \
   --lua-filter=boxed-blockquotes.lua \
   --filter pandoc-crossref \
   -o "$OUTPUT" \
@@ -51,9 +52,7 @@ pandoc "$TMP_MD" \
   -V colorlinks=true \
   -V linkcolor=blue \
   -V urlcolor=blue \
-  -V geometry:margin=2.5cm \
-  --metadata title="SSCHA School Tutorials" \
-  --metadata subtitle="Hands-on sessions on the Stochastic Self-Consistent Harmonic Approximation"
+  -V geometry:margin=2.5cm
 
 rm -f "$TMP_MD"
 
