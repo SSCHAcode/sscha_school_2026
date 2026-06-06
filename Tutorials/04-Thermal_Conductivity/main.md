@@ -1,4 +1,4 @@
-# Hands-on Session 9: Thermal Conductivity Calculations with the SSCHA
+# Hands-on Session 4: Thermal Conductivity Calculations with the SSCHA
 
 In previous lessons, we saw how to calculate vibrational properties of materials using the stochastic self-consistent harmonic approximation (SSCHA). In this tutorial, we will use that knowledge to calculate the lattice thermal conductivity of materials.
 
@@ -219,10 +219,7 @@ In this example, we used a 2 × 2 × 2 supercell to calculate the second- and th
 
 The second- and third-order force constants must be converged with respect to both the supercell size and the number of configurations. Figure 1 shows the results for harmonic properties. The phonon band structure interpolated from the 2 × 2 × 2 supercell is converged with respect to the number of configurations at around 2000 configurations. However, the results also need to be converged with respect to the supercell size, and they do not appear to be converged even for the 4 × 4 × 4 supercell.
 
-<figure>
-  <img src="./phonons.jpg" alt="Phonon band structures calculated with different supercell sizes and numbers of SSCHA configurations.">
-  <figcaption>Figure 1. Convergence study of the phonon band structure with respect to supercell size and the number of configurations.</figcaption>
-</figure>
+![Convergence study of the phonon band structure with respect to supercell size and the number of configurations.](./phonons.jpg){ width=70% }
 
 First, we calculate the lattice thermal conductivity using the single relaxation time approximation (**SRTA**). In this approximation, the thermal-conductivity tensor is written as
 
@@ -426,10 +423,7 @@ tc.calculate_kappa(
 )
 ```
 
-<figure>
-  <img src="./tcs.jpg" alt="Thermal conductivity convergence with respect to q-point grid, supercell size, and number of configurations.">
-  <figcaption>Figure 2. Convergence study of thermal conductivity with respect to q-point sampling, supercell size, and number of configurations.</figcaption>
-</figure>
+![Convergence study of thermal conductivity with respect to q-point sampling, supercell size, and number of configurations.](./tcs.jpg){ width=70% }
 
 Finally, we can calculate the lattice thermal conductivity with the Green-Kubo method:
 ```math

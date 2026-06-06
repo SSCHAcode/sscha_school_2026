@@ -28,18 +28,17 @@ A folder prepared for you with these data for the present tutorial can be downlo
 2. The `Wannier` folder contains the files `(.eig, .chk)`.
 3. The dynamical matrices are stored in the `dyn_mat` directory. `dynq*` files are harmonic ($D^{HARM}_{\mu,\nu}(\mathbf{k},\mathbf{q})$) while `MoS2.Hessian.dyn*` are anharmonic dynamical matrices computed with the SSCHA code ($D^{SCHA}_{\mu,\nu}(\mathbf{k},\mathbf{q})$).
 
-Place all the downloaded material where you intend to run the tutorial.
+Place all the downloaded material where you intend to run the tutorial. 
 
-### Download EPIq
+### Download and install EPIq
 
-First, deactivate the conda environment if it is active, typing `conda deactivate`.
-To download epiq, enter the folder where you want to install epiq in your virtual machine and type on the command line 
+Deactivate the conda environment if it is active, typing `conda deactivate`. Enter the folder where you want to install epiq in your virtual machine and type on the command line 
 
 ```console
 git clone --depth 1  --branch develop https://gitlab.com/the-epiq-team/epiq.git 
 ```
 
-then, enter the just created  with `cd epiq` and install it typing the following command
+then, enter the just created  folder with `cd epiq` and install it typing the following command
 
 ```console
 ./configure && make all CC="gcc -std=gnu89"
@@ -290,7 +289,7 @@ You can then use the following gnuplot script plots the q-resolved linewidth for
 
 **Exercise3:**
 
-Try to produce two plots of the phonon dispersion along the $\Gamma-\mathbf{M}$ high-symmetry line in the BZ, one employing the harmonic matrices and one with the anharmonic ones. Do you observe any differences?
+Try to produce two plots of the phonon dispersion along the \Gamma-\mathbf{M} high-symmetry line in the BZ, one employing the harmonic matrices and one with the anharmonic ones. Do you observe any differences?
 
 ## Explanation and details: Phonon linewidth calculation
 
@@ -472,6 +471,8 @@ and the Eliashberg function is defined as
 $$
 \alpha^2 F(\omega) = \frac{1}{N(E_F)} \sum_{\mathbf{k}qv} \sum_{nm} \left| g_{\mathbf{k}+\mathbf{q},\mathbf{k}}^{v,mn} \right|^2
 \times \delta(\omega - \omega_{\mathbf{q}v}) \delta(\epsilon_{\mathbf{k}+\mathbf{q}}^m - \epsilon_F) \delta(\epsilon_{\mathbf{k}}^n - \epsilon_F)
+
+
 $$
 
 $$

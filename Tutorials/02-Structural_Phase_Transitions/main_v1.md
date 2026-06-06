@@ -17,7 +17,10 @@ The toy model requires the harmonic dynamical matrices of the system. In this tu
 According to Landau theory, a second-order phase transition occurs when the curvature of the free energy around the high-symmetry structure becomes negative along the order-parameter direction:
 
 
-![Landau's theory of second-order phase transitions.](./figures/2ndFT.png){ width=70% }
+<figure align="center">
+  <img src="./figures/2ndFT.png" width="500">
+  <figcaption>Landau's theory of second-order phase transitions.</figcaption>
+</figure>
 
 
 In structural *displacive* phase transitions, the order parameter is associated with the amplitude of a collective pattern of atomic displacements that lowers the symmetry of the high-symmetry phase. The transition occurs when the free-energy curvature along this distortion pattern vanishes and eventually becomes negative.
@@ -182,7 +185,10 @@ plt.savefig("harm_dispersion.png", dpi=300)
 plt.show()
 ```
 
-![Harmonic phonon dispersion of SnTe.](./figures/harm_dispersion.png){ width=70% }
+<figure align="center">
+  <img src="./figures/harm_dispersion.png" width="500">
+  <figcaption>Harmonic phonon dispersion of SnTe.</figcaption>
+</figure>
 
 > **Question**
 >
@@ -191,16 +197,16 @@ plt.show()
 > **Answer**
 >
 > $$
-> \begin{array}{ccc}
-> \textbf{Harmonic} & & \textbf{Free-energy Hessian}
-> \\[0.5em]
-> \boxed{\frac{1}{\sqrt{M_aM_b}}\dfrac{\partial^2 V}{\partial R_a \partial R_b}}
-> &
-> \mathrm{VS}
-> &
-> \boxed{  \frac{1}{\sqrt{M_aM_b}}    \dfrac{\partial^2 F}{\partial R_a \partial R_b}}
-> \end{array}
-> $$
+>\begin{array}{ccc}
+>\textbf{Harmonic} & & \textbf{Free-energy Hessian}
+>\\[0.5em]
+>\boxed{\frac{1}{\sqrt{M_aM_b}}\dfrac{\partial^2 V}{\partial R_a \partial R_b}}
+>&
+>\mathrm{VS}
+>&
+>\boxed{  \frac{1}{\sqrt{M_aM_b}}    \dfrac{\partial^2 F}{\partial R_a \partial R_b}}
+>\end{array}
+>$$
 > The harmonic approximation determines the stability of the high-symmetry structure from the curvature of the potential-energy surface.
 >
 >
@@ -216,8 +222,7 @@ plt.show()
 > H = K + V.
 > $$
 >
-> Therefore, quantum fluctuations arising from the kinetic-energy operator $K$ and thermal fluctuations associated with the entropic term $TS$ can stabilize the high-symmetry phase even when the 
-> harmonic approximation   predicts a dynamical instability. The SSCHA accounts for these effects non-perturbatively by directly evaluating the free-energy Hessian.
+> Therefore, quantum fluctuations arising from the kinetic-energy operator $K$ and thermal fluctuations associated with the entropic term $TS$ can stabilize the high-symmetry phase even when the harmonic approximation predicts a dynamical instability. The SSCHA accounts for these effects non-perturbatively by directly evaluating the free-energy Hessian.
 
 ## Calculation of the SSCHA Dynamical Matrix
 
@@ -375,7 +380,10 @@ relax.minim.dyn.save_qe(
 ```
 In this way, by minimizing the free energy, we obtain the SSCHA dynamical matrices. Plotting the phonon dispersion of the SSCHA dynamical matrices together with the harmonic phonon dispersion, we obtain the following result.
 
-![Harmonic vs SSCHA phonon dispersion at T=0 K.](./figures/harm_vs_sscha.png){ width=70% }
+<figure align="center">
+  <img src="./figures/harm_vs_sscha.png" width="500">
+  <figcaption>Harmonic vs SSCHA phonon dispersion at T=0 K.</figcaption>
+</figure>
 
 By definition, the SSCHA dynamical matrices are positive definite. As a consequence, structural instabilities cannot be detected directly from their eigenvalues. To assess the stability of the high-symmetry phase, we must compute the free-energy Hessian.
 
@@ -545,14 +553,17 @@ We can now compute the phonon dispersion corresponding to the free-energy Hessia
 > Compute and plot the phonon dispersion associated with the free-energy Hessian dynamical matrix $D^{(F)}$ along a high-symmetry path of the Brillouin zone. Compare the result with the corresponding SSCHA phonon dispersion.
 
 
-![SSCHA vs Hessian phonon dispersion at T=0 K.](./figures/hessian_vs_sscha.png){ width=70% }
+<figure align="center">
+  <img src="./figures/hessian_vs_sscha.png" width="500">
+  <figcaption>SSCHA vs Hessian phonon dispersion at T=0 K.</figcaption>
+</figure>
 
 An instability is observed in the optical mode at the $\Gamma$ point, indicating the expected ferroelectric distortion. In contrast, no instability is found at the $M$ point.
 
 > **Question**
 >
 > The harmonic phonon spectrum exhibits instabilities at both the $\Gamma$ and $M$ points. Why does the instability at $M$ disappear in the free-energy Hessian spectrum?
-
+>
 > **Answer**
 >
 > The harmonic approximation determines the stability of the crystal from the curvature of the potential-energy surface alone. The free-energy Hessian, on the other hand, includes the effects of quantum and thermal fluctuations through the free energy.
@@ -568,7 +579,10 @@ A convergence study with respect to the ensemble size is therefore essential.
 >
 > Compute the optical eigenvalue of the free-energy Hessian dynamical matrix $D^{(F)}$ as a function of the number of configurations $N_{\mathrm{conf}}$ used in the stochastic evaluation of the Hessian.
 
-![Soft-mode frequency as a function of the number of configurations.](./figures/freq_vs_N.png){ width=70% }
+<figure style="text-align: center;">
+    <img src="./figures/freq_vs_N.png" width="500">
+    <figcaption>Soft-mode frequency as a function of the number of configurations.</figcaption>
+</figure>
 
 In Monte Carlo calculations, the statistical uncertainty decreases approximately as
 
@@ -582,7 +596,10 @@ For this reason, convergence studies are often analyzed as a function of $1/\sqr
 >
 > Replot the soft-mode frequency as a function of $1/\sqrt{N_{\mathrm{conf}}}$.
 
-![Soft-mode frequency as a function of the inverse square root of the number of configurations.](./figures/freq_vs_inv_sqrtN.png){ width=70% }
+<figure style="text-align: center;">
+    <img src="./figures/freq_vs_inv_sqrtN.png" width="500">
+    <figcaption>Soft-mode frequency as a function of the inverse square root of the number of configurations.</figcaption>
+</figure>
 
 The convergence test shows that increasing the ensemble size beyond approximately 1000 configurations changes the estimated frequency by less than about $1\,\mathrm{cm}^{-1}$. For most practical purposes, further reducing the stochastic error is of limited value, as other sources of uncertainty—such as the choice of pseudopotentials, exchange-correlation functional, supercell size, or the accuracy of the underlying force field—typically dominate the overall error budget.
 
@@ -596,7 +613,10 @@ As a first step, we compute the phonon dispersion associated with the free-energ
 >
 > Compute the phonon dispersion associated with the free-energy Hessian at several temperatures and estimate the temperature range in which the phase transition occurs.
 
-![Temperature evolution of the phonon dispersion associated with the free-energy Hessian.](./figures/hessian_dispersion_vs_temperature.png){ width=70% }
+<figure align="center">
+  <img src="./figures/hessian_dispersion_vs_temperature.png" width="500">
+  <figcaption>Temperature evolution of the phonon dispersion associated with the free-energy Hessian.</figcaption>
+</figure>
 
 As the temperature decreases, the optical mode at the $\Gamma$ point progressively softens and eventually becomes unstable. From these dispersions, it is already possible to obtain a rough estimate of the critical temperature, which appears to lie between 100 and 200 K.
 
@@ -606,7 +626,10 @@ To determine the transition temperature more accurately, it is convenient to foc
 >
 > Compute the frequency of the soft optical mode at $\Gamma$ as a function of temperature using both the SSCHA dynamical matrix and the free-energy Hessian dynamical matrix. Compare the temperature evolution of the two quantities.
 
-![Temperature dependence of the soft optical mode at Γ.](./figures/freq_vs_temperature.png){ width=70% }
+<figure style="text-align: center;">
+  <img src="./figures/freq_vs_temperature.png" width="500">
+  <figcaption>Temperature dependence of the soft optical mode at Γ.</figcaption>
+</figure>
 
 The figure clearly highlights the different physical meaning of the two quantities. While the frequency obtained from the free-energy Hessian eventually becomes imaginary, signaling a structural instability, the SSCHA frequency remains real at all temperatures. This is expected, since the SSCHA auxiliary dynamical matrix is positive definite by construction and therefore cannot directly exhibit unstable modes.
 
@@ -615,7 +638,7 @@ As the temperature decreases, the free-energy Hessian mode softens continuously 
 > **Question**
 >
 > What temperature dependence is expected for the soft-mode frequency close to a second-order phase transition?
-
+>
 > **Answer**
 >
 > Within a mean-field description of a second-order phase transition, the soft-mode frequency is expected to satisfy
@@ -636,7 +659,10 @@ As the temperature decreases, the free-energy Hessian mode softens continuously 
 >
 > Fit the temperature dependence of the soft-mode frequency using the expected square-root behavior and estimate the critical temperature.
 
-![Temperature dependence of the soft-mode frequency together with a square-root fit.](./figures/hessian_freq_vs_temperature_fit.png){ width=70% }
+<figure style="text-align: center;">
+  <img src="./figures/hessian_freq_vs_temperature_fit.png" width="500">
+  <figcaption>Temperature dependence of the soft-mode frequency together with a square-root fit.</figcaption>
+</figure>
 
 The square-root fit already provides a reasonable estimate of the critical temperature. However, extracting $T_c$ from a non-linear fit can be sensitive to statistical fluctuations.
 
@@ -646,7 +672,10 @@ Since mean-field theory predicts a linear dependence of $\omega^2$ on temperatur
 >
 > Plot the squared frequency of the soft mode obtained from the free-energy Hessian as a function of temperature. Perform a linear fit and estimate the critical temperature $T_c$.
 
-![Squared soft-mode frequency as a function of temperature together with a linear fit.](./figures/hessian_eigenvalue_vs_temperature_fit.png){ width=70% }
+<figure style="text-align: center;">
+  <img src="./figures/hessian_eigenvalue_vs_temperature_fit.png" width="500">
+  <figcaption>Squared soft-mode frequency as a function of temperature together with a linear fit.</figcaption>
+</figure>
 
 The linear dependence predicted by mean-field theory is clearly observed. The temperature at which the fitted line crosses zero provides an estimate of the critical temperature.
 

@@ -349,14 +349,9 @@ With this script the minimization continues until the gadients of the free energ
 sscha-plot-data minimization_data
 ```
 by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`. We should get something like:
-<figure>
-  <img src="./figures/Minimization_Evolution.png">
-  <figcaption>Figure 1. Evolution of the free energy, gradients with respect to the force constants and positions, and Kong Liu ratio along the minimization. The width of the points is related to the stochasti error. </figcaption>
-</figure>
-<figure>
-  <img src="./figures/Freq_Evolution.png">
-  <figcaption>Figure 2. Evolution of the auxiliary frequencies along the minimization </figcaption>
-</figure>
+![Evolution of the free energy, gradients with respect to the force constants and positions, and Kong Liu ratio along the minimization. The width of the points is related to the stochasti error.](./figures/Minimization_Evolution.png){ width=70% }
+![Evolution of the auxiliary frequencies along the minimization.](./figures/Freq_Evolution.png){ width=70% }
+
 Be careful that the number of configurations used is rather low and one should check convergence with respect to the number of configurations. One way of checking that is by running a final new step with more configurations starting from the result obtained at the end of the minimization.
 
 ##  An automatic calculation relaxing also the lattice parameters
@@ -437,10 +432,7 @@ The final auxiliary dynamical matrices in this case will correspond to a differe
 > Calculate the lattice parameter as a function of temperature.
 >
 > You should obtain something like that
-></figure>
-><figure>
->  <img src="./figures/Lattice_Parameter.png">
->  <figcaption>Figure 3. Lattice parameter obained at different temperatures. </figcaption>
-></figure>
+> ![Lattice parameter obained at different temperatures.](./figures/Lattice_Parameter.png){ width=70% }
+
 > 
 > As you can see the result is not very smooth although a clear positive trend is seeing. This calculation was perfomred with only 50 configurations per population. This noisy result suggests that the result can improve with more configurations.

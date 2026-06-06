@@ -191,16 +191,16 @@ plt.show()
 > **Answer**
 >
 > $$
-> \begin{array}{ccc}
-> \textbf{Harmonic} & & \textbf{Free-energy Hessian}
-> \\[0.5em]
-> \boxed{\frac{1}{\sqrt{M_aM_b}}\dfrac{\partial^2 V}{\partial R_a \partial R_b}}
-> &
-> \mathrm{VS}
-> &
-> \boxed{  \frac{1}{\sqrt{M_aM_b}}    \dfrac{\partial^2 F}{\partial R_a \partial R_b}}
-> \end{array}
-> $$
+>\begin{array}{ccc}
+>\textbf{Harmonic} & & \textbf{Free-energy Hessian}
+>\\[0.5em]
+>\boxed{\frac{1}{\sqrt{M_aM_b}}\dfrac{\partial^2 V}{\partial R_a \partial R_b}}
+>&
+>\mathrm{VS}
+>&
+>\boxed{  \frac{1}{\sqrt{M_aM_b}}    \dfrac{\partial^2 F}{\partial R_a \partial R_b}}
+>\end{array}
+>$$
 > The harmonic approximation determines the stability of the high-symmetry structure from the curvature of the potential-energy surface.
 >
 >
@@ -216,8 +216,7 @@ plt.show()
 > H = K + V.
 > $$
 >
-> Therefore, quantum fluctuations arising from the kinetic-energy operator $K$ and thermal fluctuations associated with the entropic term $TS$ can stabilize the high-symmetry phase even when the 
-> harmonic approximation   predicts a dynamical instability. The SSCHA accounts for these effects non-perturbatively by directly evaluating the free-energy Hessian.
+> Therefore, quantum fluctuations arising from the kinetic-energy operator $K$ and thermal fluctuations associated with the entropic term $TS$ can stabilize the high-symmetry phase even when the harmonic approximation predicts a dynamical instability. The SSCHA accounts for these effects non-perturbatively by directly evaluating the free-energy Hessian.
 
 ## Calculation of the SSCHA Dynamical Matrix
 
@@ -552,7 +551,7 @@ An instability is observed in the optical mode at the $\Gamma$ point, indicating
 > **Question**
 >
 > The harmonic phonon spectrum exhibits instabilities at both the $\Gamma$ and $M$ points. Why does the instability at $M$ disappear in the free-energy Hessian spectrum?
-
+>
 > **Answer**
 >
 > The harmonic approximation determines the stability of the crystal from the curvature of the potential-energy surface alone. The free-energy Hessian, on the other hand, includes the effects of quantum and thermal fluctuations through the free energy.
@@ -615,7 +614,7 @@ As the temperature decreases, the free-energy Hessian mode softens continuously 
 > **Question**
 >
 > What temperature dependence is expected for the soft-mode frequency close to a second-order phase transition?
-
+>
 > **Answer**
 >
 > Within a mean-field description of a second-order phase transition, the soft-mode frequency is expected to satisfy

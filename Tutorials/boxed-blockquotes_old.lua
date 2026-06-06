@@ -31,10 +31,7 @@ function BlockQuote(block)
     colback, colframe, colbacktitle, coltitle = 'green!5', 'green!50!black', 'green!50!black', 'white'
   elseif title_lower:match('^question') then
     colback, colframe, colbacktitle, coltitle = 'purple!5', 'purple!60!black', 'purple!60!black', 'white'
-  elseif title_lower:match('^answer') then
-  colback, colframe, colbacktitle, coltitle =
-    'purple!5', 'purple!60!black', 'purple!60!black', 'white'
-elseif title_lower:match('^note') then
+  elseif title_lower:match('^note') then
     colback, colframe, colbacktitle, coltitle = 'blue!5', 'blue!60!black', 'blue!60!black', 'white'
   else
     return nil
