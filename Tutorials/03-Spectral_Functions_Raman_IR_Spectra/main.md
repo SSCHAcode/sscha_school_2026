@@ -237,7 +237,7 @@ def compute_ir():
     ensemble.update_weights(final_dyn, TEMPERATURE)
 
     # Initialize the TD-SCHA Lanczos algorithm
-    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble)
+    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble, lo_to_split=None)
     lanczos.init()
 
     # Define which level of anharmonicity we want
@@ -355,13 +355,15 @@ The algorithm is initialized as follows:
 
 ```python
     # Initialize the TD-SCHA Lanczos algorithm
-    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble)
+    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble, lo_to_split=None)
     lanczos.init()
 
     # Let us define which level of anharmonicity we want
     lanczos.ignore_v3 = False # Add bubble contribution if false
     lanczos.ignore_v4 = True # Add RPA resummation if false 
 ```
+
+The flag `lo_to_split` can be used with a direction for a q vector in which the q-mesh will be offsetted. In this way, phonons at $\Gamma$ will have energies and polarization vectors determined by the q vector exchanged between light and phonons. For now, we ignore `lo_to_split` setting it to `None`.
 
 The `ignore_v3` and `ignore_v4` flags determine which approximation level we use to compute the phonon spectra. By setting both to False, we compute the full TD-SCHA response function without further approximations.
 Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in the Free energy Hessian. However, thanks to how the Lanczos algorithm is formulated, including the full RPA resummation with the 4-phonon scattering vertices does not increase the computational cost of the algorithm. In particular, the cost only increases by a factor of 2, without any consequences on the memory. Here we ignore it for speed, but you can try setting it to False as well.
@@ -739,7 +741,7 @@ which excites phonons inside the material.
 The result is the following
 
 <center>
-![Raman spectrum with 200 iterations of the Lanczos algorithm along the x polarization for both incoming and outgoing radiation](Raman_xx_spectrum.png){ width=60% }
+![Raman spectrum with 200 iterations of the Lanczos algorithm along the x polarization for both incoming and outgoing radiation. This plot includes the Stokes scattering facctor $1 + n(\omega)$.](Raman_xx_spectrum.png){ width=60% }
 </center>
 
 > **Exercise:**
