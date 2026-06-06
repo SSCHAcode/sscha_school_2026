@@ -40,13 +40,14 @@ pandoc "$TMP_MD" \
   --pdf-engine=xelatex \
   --include-in-header=header.tex \
   --lua-filter=boxed-blockquotes.lua \
+  --filter pandoc-crossref \
   -o "$OUTPUT" \
   --toc \
   --toc-depth=3 \
   -V documentclass=report \
   -V numbersections \
   -V secnumdepth=2 \
-  --syntax-highlighting=idiomatic \
+  --syntax-highlighting=breezeDark \
   -V colorlinks=true \
   -V linkcolor=blue \
   -V urlcolor=blue \

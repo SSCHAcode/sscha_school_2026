@@ -370,7 +370,7 @@ Setting `ignore_v4` to True is equivalent to setting `include_v4` to False in th
 This is also the reason why we can use the Lanczos algorithm from the TD-SCHA to compute the free energy Hessian accounting for the 4-phonon scatterings even in relatively large supercells without any memory issue.
 
 <center>
-![Diagrammatic series of perturbation present in the self-energy. The first term is the bare auxiliary harmonic propagation, the 3-phonon scattering vertex $\stackrel{(3)}{\Phi}$ enable the bubble diagram (the second term) while the 4-phonon scattering $\stackrel{(4)}{\Phi}$ enables all the chained diagrams obtained from the RPA like Dyson equation.](Diagrams.png){ width=60% }
+![Diagrammatic series of perturbation present in the self-energy. The first term is the bare auxiliary harmonic propagation, the 3-phonon scattering vertex $\stackrel{(3)}{\Phi}$ enable the bubble diagram (the second term) while the 4-phonon scattering $\stackrel{(4)}{\Phi}$ enables all the chained diagrams obtained from the RPA like Dyson equation.](Diagrams.png){#fig:diagrams width=60% }
 </center>
 
 
@@ -475,10 +475,10 @@ def plot_spectrum():
 plot_spectrum()
 ```
 
-The final result is plotted in the following figure
+The final result is plotted in @fig:ir_spectrum.
 
 <center>
-![IR Spectrum obtained with the `plot_spectrum.py`.](ir_spectrum.png){ width=60% }
+![IR Spectrum obtained with the `plot_spectrum.py`.](ir_spectrum.png){#fig:ir_spectrum width=60% }
 </center>
 
 #### Analysis of the plot script - Extracting the Green's Function
@@ -738,19 +738,19 @@ In this case, we need an incoming field polarization and an outgoing field polar
 The simultaneous presence of incoming and outgoing radiation generates a force on the atoms, 
 which excites phonons inside the material.
 
-The result is the following
+The result is shown in @fig:raman_xx.
 
 <center>
-![Raman spectrum with 200 iterations of the Lanczos algorithm along the x polarization for both incoming and outgoing radiation. This plot includes the Stokes scattering facctor $1 + n(\omega)$.](Raman_xx_spectrum.png){ width=60% }
+![Raman spectrum with 200 iterations of the Lanczos algorithm along the x polarization for both incoming and outgoing radiation. This plot includes the Stokes scattering facctor $1 + n(\omega)$.](Raman_xx_spectrum.png){#fig:raman_xx width=60% }
 </center>
 
 > **Exercise:**
 > Try to run the Raman off-diagonal like x-y, or the zz. Are the photo-excited modes the same? 
 
-The solution for the unpolarized Raman is something like
+The solution for the unpolarized Raman is shown in @fig:raman_unpol.
 
 <center>
-![Unpolarized Raman. The scattering factor $n(\omega) + 1$ kills high frequency modes, which have a lower thermal population than low-frequency modes.](exercise_solution/raman_spectrum.png){ width=60% }
+![Unpolarized Raman. The scattering factor $n(\omega) + 1$ kills high frequency modes, which have a lower thermal population than low-frequency modes.](exercise_solution/raman_spectrum.png){#fig:raman_unpol width=60% }
 </center>
 
 
