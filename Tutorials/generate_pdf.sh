@@ -40,8 +40,8 @@ pandoc "$TMP_MD" \
   --pdf-engine=xelatex \
   --include-in-header=header.tex \
   --include-before-body=title.tex \
-  --lua-filter=boxed-blockquotes.lua \
   --filter pandoc-crossref \
+  --lua-filter=boxed-blockquotes.lua \
   -o "$OUTPUT" \
   --toc \
   --toc-depth=3 \
