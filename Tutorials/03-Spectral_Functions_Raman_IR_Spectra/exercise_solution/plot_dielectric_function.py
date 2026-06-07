@@ -30,7 +30,8 @@ chi = lanczos.get_green_function_continued_fraction(w_ry,
                                                     smearing=smearing)
 
 # Get the ionic dielectric tensor
-volume = dyn.structure.get_volume()
+volume = dyn.structure.get_volume() * np.prod(dyn.GetSupercell())
+volume /= CC.Units.BOHR_TO_ANGSTROM**3 # convert in Borh^3
 epsilon_ion = (8*np.pi / volume) * chi
 
 # Get the total dielectric tensor
@@ -57,4 +58,4 @@ axarr[1].set_title("Normal wave absorbance")
 axarr[2].set_title("Evaneshent wave absorbance")
 fig.tight_layout()
 plt.show()
-fig.savefig("dielectric_tensor")
+fig.savefig("dielectric_function.png")

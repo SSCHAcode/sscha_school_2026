@@ -861,7 +861,7 @@ $$
 $$
 
 This relation holds in Hartree atomic units, if $\chi$ is expressed in Rydberg atomic units, then there is a factor 2
-coming from the conversion from Ha to Ry:
+coming from the conversion from Ha to Ry. Also pay attention to the volume, which must be 
 
 
 $$
@@ -879,11 +879,28 @@ print("Dielectric Tensor:")
 dyn.dielectric_tensor
 ```
 
+Pay also attention to the volume! The `tdscha` stores the volume in $A^3$, which must be converted in
+atomic units before the division. Moreover, the response function is computed in the supercell of the 2x2x2 mesh, which must be taken into account when computing the volume.
+
+```python
+# Get the volume in the primitive cell
+volume = dyn.structure.get_volume() * CC.Units.A_TO_BOHR**3
+
+# Get the volume of the supercell
+volume *= np.prod(dyn.GetSupercell())
+```
+
 > **Exercise:**
 >
 > Compute the infrared absorption in the normal and evaneshent wave of the cubic CsPbI$_3$.
 > Plot them together with the spectral function and discuss the differences and why.
 >
 > (the solution is inside `exercise_solution`, but try to solve it without looking at it).
+>
+> The overall result is reported in @fig:epsilon .
+
+<center>
+![Infrared absorption in the normal and evaneshent wave of the cubic CsPbI$_3$. The spectral function is also plotted for comparison.](dielectric_function.png){#fig:epsilon width=60% }
+</center>
 
 
