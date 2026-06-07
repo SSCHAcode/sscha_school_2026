@@ -172,11 +172,7 @@ in the `population1_ensemble` folder we will obtain all the energies, forces and
 With all these files ready, the variational minimization is ready to be done. We will do that with the script `minimize.py`:
 
 ```python
-from __future__ import print_function
-from __future__ import division
 import sys,os
-
-import warnings
 
 # Import cellconstructor needed things
 import cellconstructor as CC
@@ -193,20 +189,10 @@ from quippy.potential import Potential
 import ase
 
 # Import matplotlib and numpy
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib import colors as mcolors
-from matplotlib import cm
 import numpy as np
 
 # NumPy moved ComplexWarning in newer versions. This block keeps the script
 # compatible with both older and newer NumPy releases.
-try:
-    ComplexWarning = np.exceptions.ComplexWarning
-except AttributeError:
-    ComplexWarning = np.ComplexWarning
-
-warnings.filterwarnings("ignore", category=ComplexWarning)
 
 #----------------------------------------------
 # We set up the parameters for the calculation
@@ -249,17 +235,15 @@ minimizer.min_step_struc = 0.05        # The minimization step on the structure
 minimizer.kong_liu_ratio = 0.2         # The parameter that estimates whether the ensemble is still good
 minimizer.meaningful_factor = 0.000001 # How much small the gradient should be before I stop?
 
-# Let's start the minimization
-
-minimizer.init()
-minimizer.run()
-
-# Save the minimization details
+# Store the gradients during the minimization
 ioinfo = sscha.Utilities.IOInfo()
 ioinfo.SetupSaving("minim_{}".format(POPULATION))
 
-
+# Let's start the minimization
+minimizer.init()
 minimizer.run(custom_function_post = ioinfo.CFP_SaveAll)
+
+# Save the results
 minimizer.finalize()
 namefile='dyn_end_population'+str(POPULATION)+'_'
 minimizer.dyn.save_qe(namefile)
