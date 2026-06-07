@@ -800,3 +800,48 @@ Or, if the calculation is heavy, it could be  run in parallel by simply running 
 > Compute the unpolarized Raman spectrum of CsPbI$_3$ and plot the results.
 
 
+## The dielectric tensor
+
+We saw that a real IR experiment measures the dielectric function, and in particular, in the normal propagation we have
+$$
+A_s(\omega) = -\text{Im} \sqrt{\varepsilon(\omega)}
+$$
+While for the evaneshent wave we have
+$$
+A_e(\omega) = \text{Im} \frac{1}{\sqrt{\varepsilon(\omega)}}
+$$
+
+The `tdscha` code provides the suscieptibility $\chi(\omega)$ from the dipole dipole approximation in Ry atomic units.
+The relationship between suscieptibility and dielectric constant is:
+
+$$
+\varepsilon(\omega) = \varepsilon_\infty + \frac{4\pi}{V}\chi(\omega)
+$$
+
+This relation holds in Hartree atomic units, if $\chi$ is expressed in Rydberg atomic units, then there is a factor 2
+coming from the conversion from Ha to Ry:
+
+
+$$
+\varepsilon(\omega) = \varepsilon_\infty + \frac{8\pi}{V}\chi(\omega)
+$$
+
+The value $\varepsilon_\infty$ is computed with DFPT (Quantum Espresso phonon calculation).
+In particular, it can be found in the file `dielectric_calc.pho`, and it is stored
+in the dynamical matrix after loading it:
+
+
+```python
+dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
+print("Dielectric Tensor:")
+dyn.dielectric_tensor
+```
+
+> **Exercise:**
+>
+> Compute the infrared absorption in the normal and evaneshent wave of the cubic CsPbI$_3$.
+> Plot them together with the spectral function and discuss the differences and why.
+>
+> (the solution is inside `exercise_solution`, but try to solve it without looking at it).
+
+
