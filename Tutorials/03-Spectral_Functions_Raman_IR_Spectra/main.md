@@ -844,33 +844,30 @@ Or, if the calculation is heavy, it could be  run in parallel by simply running 
 
 ## The dielectric tensor
 
-We saw that a real IR experiment measures the dielectric function, and in particular, in the normal propagation we have
+A real IR experiment measures the dielectric function. For normal propagation, the absorption is:
 $$
 A_s(\omega) = -\text{Im} \sqrt{\varepsilon(\omega)}
 $$
-While for the evaneshent wave we have
+While for the evanescent wave we have
 $$
 A_e(\omega) = \text{Im} \frac{1}{\sqrt{\varepsilon(\omega)}}
 $$
 
-The `tdscha` code provides the suscieptibility $\chi(\omega)$ from the dipole dipole approximation in Ry atomic units.
-The relationship between suscieptibility and dielectric constant is:
+The `tdscha` code provides the susceptibility $\chi(\omega)$ from the dipole-dipole response function, in Rydberg (Ry) atomic units.
+The relationship between susceptibility and dielectric constant is:
 
 $$
 \varepsilon(\omega) = \varepsilon_\infty + \frac{4\pi}{V}\chi(\omega)
 $$
 
-This relation holds in Hartree atomic units, if $\chi$ is expressed in Rydberg atomic units, then there is a factor 2
-coming from the conversion from Ha to Ry. Also pay attention to the volume, which must be 
+This relation holds in Hartree atomic units. If $\chi$ is expressed in Rydberg atomic units (as is the case for the `tdscha` output), a factor of 2 arises from the Ha $\to$ Ry conversion, giving:
 
 
 $$
 \varepsilon(\omega) = \varepsilon_\infty + \frac{8\pi}{V}\chi(\omega)
 $$
 
-The value $\varepsilon_\infty$ is computed with DFPT (Quantum Espresso phonon calculation).
-In particular, it can be found in the file `dielectric_calc.pho`, and it is stored
-in the dynamical matrix after loading it:
+The value $\varepsilon_\infty$ is obtained from DFPT (via a Quantum ESPRESSO phonon calculation). It is contained in the file `dielectric_calc.pho` and is accessible from the dynamical matrix after loading it:
 
 
 ```python
@@ -879,28 +876,31 @@ print("Dielectric Tensor:")
 dyn.dielectric_tensor
 ```
 
-Pay also attention to the volume! The `tdscha` stores the volume in $A^3$, which must be converted in
-atomic units before the division. Moreover, the response function is computed in the supercell of the 2x2x2 mesh, which must be taken into account when computing the volume.
+Pay attention to the volume: the `tdscha` stores the volume in $\Angstrom^3$, which must be converted to atomic units before the division. Moreover, the response function is computed on a 2$\times$2$\times$2 supercell, so the volume must be scaled accordingly:
 
 ```python
-# Get the volume in the primitive cell
+# Get the volume in the primitive cell (in Bohr^3)
 volume = dyn.structure.get_volume() * CC.Units.A_TO_BOHR**3
 
-# Get the volume of the supercell
+# Obtain the volume of the supercell
 volume *= np.prod(dyn.GetSupercell())
 ```
 
 > **Exercise:**
 >
-> Compute the infrared absorption in the normal and evaneshent wave of the cubic CsPbI$_3$.
+> Compute the infrared absorption in the normal and evanescent wave of the cubic CsPbI$_3$.
 > Plot them together with the spectral function and discuss the differences and why.
 >
 > (the solution is inside `exercise_solution`, but try to solve it without looking at it).
 >
 > The overall result is reported in @fig:epsilon .
 
+> **Question:**
+> 
+> What is the energy difference in the peak position between the spectral function and the evaneshent wave?
+
 <center>
-![Infrared absorption in the normal and evaneshent wave of the cubic CsPbI$_3$. The spectral function is also plotted for comparison.](dielectric_function.png){#fig:epsilon width=60% }
+![Infrared absorption in the normal and evanescent wave of the cubic CsPbI$_3$. The spectral function is also plotted for comparison.](dielectric_function.png){#fig:epsilon width=80% }
 </center>
 
 

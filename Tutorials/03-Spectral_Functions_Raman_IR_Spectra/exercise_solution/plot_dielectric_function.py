@@ -38,17 +38,17 @@ epsilon_ion = (8*np.pi / volume) * chi
 # Sum the electronic (xx component) and the ionic one
 epsilon = dyn.dielectric_tensor[0,0] + epsilon_ion
 
-# Compute the normal propagation and evaneshent wave
+# Compute the normal propagation and evanescent wave
 # And the standard spectral function
 normal_prop = - np.imag(np.sqrt(epsilon))
-evaneshent_prop = np.imag(1 / epsilon)
+evanescent_prop = np.imag(1 / epsilon)
 spectral_func = -np.imag(chi)
 
 # Plot the results
 fig, axarr = plt.subplots(ncols=1, nrows=3, sharex=True)
 axarr[0].plot(w, spectral_func)
 axarr[1].plot(w, normal_prop)
-axarr[2].plot(w, evaneshent_prop)
+axarr[2].plot(w, evanescent_prop)
 axarr[2].set_xlabel("frequency [cm-1]")
 axarr[0].set_ylabel(r"- Im $\chi$")
 axarr[1].set_ylabel(r"- Im $n$")

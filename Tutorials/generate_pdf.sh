@@ -1,6 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ---------- dependency checks ----------
+missing_deps=()
+
+if ! command -v pandoc &>/dev/null; then
+  missing_deps+=("pandoc")
+fi
+
+if ! command -v xelatex &>/dev/null; then
+  missing_deps+=("xelatex (part of texlive-xetex)")
+fi
+
+if ! command -v pandoc-crossref &>/dev/null; then
+  missing_deps+=("pandoc-crossref")
+fi
+
+if [ ${#missing_deps[@]} -gt 0 ]; then
+  echo "ERROR: The following dependencies are missing:" >&2
+  for dep in "${missing_deps[@]}"; do
+    echo "  - $dep" >&2
+  done
+  echo "" >&2
+  echo "Please install them before running this script." >&2
+  echo "" >&2
+  echo "Install missing dependencies with:" >&2
+  echo "  conda install -c conda-forge pandoc texlive-core pandoc-crossref" >&2
+  exit 1
+fi
+# ----------------------------------------
+
 OUTPUT="SSCHA_Tutorials.pdf"
 TMP_MD=$(mktemp /tmp/sscha_tutorials_XXXXXX.md)
 
