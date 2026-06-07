@@ -8,6 +8,14 @@ echo "Building combined markdown with adjusted paths..."
 
 > "$TMP_MD"
 
+setups_md="00-Setup/main.md"
+if [ -f "$setups_md" ]; then
+  echo "" >> "$TMP_MD"
+  echo '\newpage' >> "$TMP_MD"
+  echo "" >> "$TMP_MD"
+  sed -E 's#(!\[.*\]\()([^)]+)\)#\100-Setup/\2)#g' "$setups_md" >> "$TMP_MD"
+fi
+
 for dir in 01-* 02-* 03-* 04-* 05-*; do
   md="$dir/main.md"
   if [ ! -f "$md" ]; then
@@ -31,6 +39,8 @@ echo "  Output: $OUTPUT"
 pandoc "$TMP_MD" \
   --pdf-engine=xelatex \
   --include-in-header=header.tex \
+  --include-before-body=title.tex \
+  --filter pandoc-crossref \
   --lua-filter=boxed-blockquotes.lua \
   -o "$OUTPUT" \
   --toc \
@@ -38,13 +48,11 @@ pandoc "$TMP_MD" \
   -V documentclass=report \
   -V numbersections \
   -V secnumdepth=2 \
-  --syntax-highlighting=idiomatic \
+  --syntax-highlighting=breezeDark \
   -V colorlinks=true \
   -V linkcolor=blue \
   -V urlcolor=blue \
-  -V geometry:margin=2.5cm \
-  --metadata title="SSCHA School Tutorials" \
-  --metadata subtitle="Hands-on sessions on the Stochastic Self-Consistent Harmonic Approximation"
+  -V geometry:margin=2.5cm
 
 rm -f "$TMP_MD"
 

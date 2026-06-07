@@ -14,11 +14,13 @@ The variational minimization of the free energy within the SSCHA requires severa
 
 In this tutorial we will show how to perform such calculations, starting from the most basic usage of the code to more advanced automatic type of calculations.
 
+In the following, we assume we work inside the `Tutorials/01-Free_Energy_Structural_Relaxations/` directory. All paths are given relative to this directory.
+
 ##  A standard manual calculation with an external force engine
 
-The starting ionic (centroid) positions and force constants are read by the SSCHA from Quantum Espresso dynamical matrix files. We provide some harmonic calculations for $CsPbI_3$ in the folder `sscha_school_2026/Materials/CsPbI3_cubic_harmonic_*`. In these files the structure of the crystal is given, and each of the files corresponds to the force constants matrix obtained in reciprocal space for all the irreducible q points in a $2 \times 2 \times 2$ grid. In this case there are 4 different q points in the irreducible grid. This is enough to create the force constants in a commensurate $2 \times 2 \times 2$ supercell.
+The starting ionic (centroid) positions and force constants are read by the SSCHA from Quantum Espresso dynamical matrix files. We provide some harmonic calculations for $CsPbI_3$ in the folder `../../Materials/CsPbI3_cubic_harmonic_*`. In these files the structure of the crystal is given, and each of the files corresponds to the force constants matrix obtained in reciprocal space for all the irreducible q points in a $2 \times 2 \times 2$ grid. In this case there are 4 different q points in the irreducible grid. This is enough to create the force constants in a commensurate $2 \times 2 \times 2$ supercell.
 
-In this first example we will do all the steps of the SSCHA minimization separately, one by one. In the first step we will read the input positions and force constants from the harmonic dynamical matricesand create 50 random configurations based on probability distribution functions defined by these positions and force constants. This is done by the stript `sscha_school_2026/Tutorials/01-Free_Energy_Structural_Relaxations/create_configurations.py`, which is copied here:
+In this first example we will do all the steps of the SSCHA minimization separately, one by one. In the first step we will read the input positions and force constants from the harmonic dynamical matricesand create 50 random configurations based on probability distribution functions defined by these positions and force constants. This is done by the stript `create_configurations.py`, which is copied here:
 
 ```python
 # Import cellconstructor needed things
@@ -82,7 +84,7 @@ we will obtain a folder with the name `population1_ensemble`, where files `u_pop
 
 The next step is to calculate the BO total energies, BO atomic forces and BO stresses for all these configurations. These has to be stored in the folder `population1_ensemble` with names `energies_supercell_population1.dat`, where all energiescalculated in the supercell  in Ry are concatanated; `forces_population1_*.dat`, where in each file the forces of the atoms are given in Ry/Bohr (one line per atom with Cartesian coordinates in the same line); and `pressure_population1_*.dat`, where in each file the $3 \times 3$ stress tensor is given in Ry/Bohr^3. These calculations can be done externally with any code and prepare these files a posteriori.
 
-In this case we perform the calculations with the GAP machine learning potential given in `sscha_school_2026/Materials/`. This is the python script `sscha_school_2026/Tutorials/01-Free_Energy_Structural_Relaxations/run_force_energy_engine.py` that does that:
+In this case we perform the calculations with the GAP machine learning potential given in `../../Materials/`. This is the python script `run_force_energy_engine.py` that does that:
 
 ```python
 # Import cellconstructor needed things
@@ -167,7 +169,7 @@ python run_force_energy_engine.py
 ```
 in the `population1_ensemble` folder we will obtain all the energies, forces and stresses that the SSCHA needs for the minimization. If an external code is done for this part, one should prepare these files externally.
 
-With all these files ready, the variational minimization is ready to be done. We will do that with the script `sscha_school_2026/Tutorials/01-Free_Energy_Structural_Relaxations/minimize.py`:
+With all these files ready, the variational minimization is ready to be done. We will do that with the script `minimize.py`:
 
 ```python
 from __future__ import print_function
@@ -275,7 +277,7 @@ The evolution of the minimization can be seen in the `population1.log` file, whe
 
 ##  An automatic calculation for fixed lattice parameters
 
-The manual calculations explained before can be easy if not many populations are needed to converge the result and we have no option but performing the energy-force calculations externally, for instance in a cluster. However, with force fields or Machine Learning potentials the SSCHA can make all the process above automatically, population after population, in one single script. This can be done by making use of the relax feature of the SSCHA. An example can be done with the following script `sscha_school_2026/Tutorials/01-Free_Energy_Structural_Relaxations/sscha_relax.py`:
+The manual calculations explained before can be easy if not many populations are needed to converge the result and we have no option but performing the energy-force calculations externally, for instance in a cluster. However, with force fields or Machine Learning potentials the SSCHA can make all the process above automatically, population after population, in one single script. This can be done by making use of the relax feature of the SSCHA. An example can be done with the following script `sscha_relax.py`:
 
 ```python
 import cellconstructor as CC, cellconstructor.Phonons
@@ -348,20 +350,21 @@ With this script the minimization continues until the gadients of the free energ
 ```bash
 sscha-plot-data minimization_data
 ```
-by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`. We should get something like:
-<figure>
-  <img src="./figures/Minimization_Evolution.png">
-  <figcaption>Figure 1. Evolution of the free energy, gradients with respect to the force constants and positions, and Kong Liu ratio along the minimization. The width of the points is related to the stochasti error. </figcaption>
-</figure>
-<figure>
-  <img src="./figures/Freq_Evolution.png">
-  <figcaption>Figure 2. Evolution of the auxiliary frequencies along the minimization </figcaption>
-</figure>
+by plotting the evolution of the minimizaton stored in the files `minimization_data.freqs` and `minimization_data.dat`. We should obtain results similar to those in @fig:minim_evolution and @fig:freq_evolution.
+
+<center>
+![Evolution of the free energy, gradients with respect to the force constants and positions, and Kong Liu ratio along the minimization. The width of the points is related to the stochasti error.](./figures/Minimization_Evolution.png){#fig:minim_evolution width=70% }
+</center>
+
+<center>
+![Evolution of the auxiliary frequencies along the minimization.](./figures/Freq_Evolution.png){#fig:freq_evolution width=70% }
+</center>
+
 Be careful that the number of configurations used is rather low and one should check convergence with respect to the number of configurations. One way of checking that is by running a final new step with more configurations starting from the result obtained at the end of the minimization.
 
 ##  An automatic calculation relaxing also the lattice parameters
 
-Even if the automatic calculation simplifies the procedure enormously, the SSCHA can further simplify the calculations by relaxing also the lattice parameters to a target pressure. This is done by replacing the relax feature by the vcrelax one as shown in the `sscha_school_2026/Tutorials/01-Free_Energy_Structural_Relaxations/sscha_vcrelax.py` script:
+Even if the automatic calculation simplifies the procedure enormously, the SSCHA can further simplify the calculations by relaxing also the lattice parameters to a target pressure. This is done by replacing the relax feature by the vcrelax one as shown in the `sscha_vcrelax.py` script:
 
 ```python
 import cellconstructor as CC, cellconstructor.Phonons
@@ -436,11 +439,10 @@ The final auxiliary dynamical matrices in this case will correspond to a differe
 >
 > Calculate the lattice parameter as a function of temperature.
 >
-> You should obtain something like that
-></figure>
-><figure>
->  <img src="./figures/Lattice_Parameter.png">
->  <figcaption>Figure 3. Lattice parameter obained at different temperatures. </figcaption>
-></figure>
+> You should obtain something similar to @fig:lattice_param.
 > 
 > As you can see the result is not very smooth although a clear positive trend is seeing. This calculation was perfomred with only 50 configurations per population. This noisy result suggests that the result can improve with more configurations.
+
+<center>
+![Lattice parameter obained at different temperatures.](./figures/Lattice_Parameter.png){#fig:lattice_param width=70% }
+</center>

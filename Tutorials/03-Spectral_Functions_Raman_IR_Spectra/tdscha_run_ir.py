@@ -33,7 +33,7 @@ def compute_ir():
     ensemble.update_weights(final_dyn, TEMPERATURE)
 
     # Initialize the TD-SCHA Lanczos algorithm
-    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble)
+    lanczos = tdscha.DynamicalLanczos.Lanczos(ensemble, lo_to_split=None)
     lanczos.init()
 
     # Let us define which level of anharmonicity we want

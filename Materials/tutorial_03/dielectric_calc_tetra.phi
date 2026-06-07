@@ -1,0 +1,9 @@
+Dielectric tensor, Born charges, and Raman — gamma only, no phonons
+&INPUTPH
+  outdir   = './tmp'
+  prefix   = 'dielectric_tetra'
+  epsil    = .true.
+  lraman   = .true.
+  trans    = .false.
+/
+0.0 0.0 0.0

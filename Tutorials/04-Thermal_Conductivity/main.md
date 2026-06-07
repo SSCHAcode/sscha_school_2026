@@ -1,4 +1,4 @@
-# Hands-on Session 9: Thermal Conductivity Calculations with the SSCHA
+# Hands-on Session 4: Thermal Conductivity Calculations with the SSCHA
 
 In previous lessons, we saw how to calculate vibrational properties of materials using the stochastic self-consistent harmonic approximation (SSCHA). In this tutorial, we will use that knowledge to calculate the lattice thermal conductivity of materials.
 
@@ -219,12 +219,22 @@ In this example, we used a 2 × 2 × 2 supercell to calculate the second- and th
 
 The second- and third-order force constants must be converged with respect to both the supercell size and the number of configurations. Figure 1 shows the results for harmonic properties. The phonon band structure interpolated from the 2 × 2 × 2 supercell is converged with respect to the number of configurations at around 2000 configurations. However, the results also need to be converged with respect to the supercell size, and they do not appear to be converged even for the 4 × 4 × 4 supercell.
 
-<figure>
-  <img src="./phonons.jpg" alt="Phonon band structures calculated with different supercell sizes and numbers of SSCHA configurations.">
-  <figcaption>Figure 1. Convergence study of the phonon band structure with respect to supercell size and the number of configurations.</figcaption>
-</figure>
+![Convergence study of the phonon band structure with respect to supercell size and the number of configurations.](./phonons.jpg){ width=70% }
 
-To calculate the thermal conductivity using force constants obtained with different numbers of configurations, we can use the following script:
+First, we calculate the lattice thermal conductivity using the single relaxation time approximation (**SRTA**). In this approximation, the thermal-conductivity tensor is written as
+
+```math
+\kappa^{xy}
+=
+\frac{1}{N V}
+\sum_{\mathbf{q}, j}
+v^{x}_{\mathbf{q}, j}
+v^{y}_{\mathbf{q}, j}
+c_{\mathbf{q}, j}
+\tau_{\mathbf{q}, j}.
+```
+
+Here, $N$ is the number of **q** points,  $V$ is the unit-cell volume,  $v^{x}_{\mathbf{q}, j}$ and $v^{y}_{\mathbf{q}, j}$ are the phonon group-velocity components,  $c_{\mathbf{q}, j}$ is the mode heat capacity, and $\tau_{\mathbf{q}, j}$ is the phonon lifetime for phonon mode $j$ at wave vector $\mathbf{q}$. To calculate the thermal conductivity using force constants obtained with different numbers of configurations, we can use the following script:
 
 ```python
 from __future__ import division, print_function
@@ -413,12 +423,13 @@ tc.calculate_kappa(
 )
 ```
 
-<figure>
-  <img src="./tcs.jpg" alt="Thermal conductivity convergence with respect to q-point grid, supercell size, and number of configurations.">
-  <figcaption>Figure 2. Convergence study of thermal conductivity with respect to q-point sampling, supercell size, and number of configurations.</figcaption>
-</figure>
+![Convergence study of thermal conductivity with respect to q-point sampling, supercell size, and number of configurations.](./tcs.jpg){ width=70% }
 
 Finally, we can calculate the lattice thermal conductivity with the Green-Kubo method:
+```math
+        \kappa ^{xy} = \frac{2\pi\beta ^2k_{B}}{NV}\sum _{\mathbf{q},j,j'}v^{x}_{\mathbf{q},j,j'}v^{y*}_{\mathbf{q},j,j'}\omega _{\mathbf{q},j}\omega _{\mathbf{q},j'}\int_{-\infty}^{\infty}\textrm{d}\Omega \frac{\exp(\beta\Omega)}{\left(\exp(\beta\Omega) - 1\right)^2}\sigma _{\mathbf{q},j}(\Omega)\sigma_{\mathbf{q},j'}(\Omega)
+```
+Here the $\sigma _{\mathbf{q},j}$ is phonon spectral function. The python script that does the calculation is:
 
 ```python
 from __future__ import division, print_function
