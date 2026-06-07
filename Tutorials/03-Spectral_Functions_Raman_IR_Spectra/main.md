@@ -873,7 +873,7 @@ The value $\varepsilon_\infty$ is obtained from DFPT (via a Quantum ESPRESSO pho
 ```python
 dyn.ReadInfoFromESPRESSO("dielectric_calc.pho")
 print("Dielectric Tensor:")
-dyn.dielectric_tensor
+print(dyn.dielectric_tensor)
 ```
 
 Pay attention to the volume: the `tdscha` stores the volume in $\Angstrom^3$, which must be converted to atomic units before the division. Moreover, the response function is computed on a 2$\times$2$\times$2 supercell, so the volume must be scaled accordingly:
