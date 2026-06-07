@@ -58,6 +58,28 @@ then, enter the just created  directory with `cd epiq` and install it typing the
 
 all the executables (.x files) will be installed in epiq/bin.
 
+## Clone the repository with the tutorials
+
+All the tutorials have force-fields and files that you need to download.
+This can be done from the github repository.
+Open the terminal, enter the folder where you want to download the tutorials and type
+
+```bash
+git clone https://github.com/SSCHAcode/sscha_school_2026.git
+```
+
+This will create a folder named `sscha_school_2026` with all the files needed for the tutorials.
+Note that the force field is compressed in a tar.gz file. You need to extract it.
+To do so, enter the folder with `cd sscha_school_2026` and type
+
+```bash
+cd Materials
+tar xf force_field_CsPbI3.tar.gz
+```
+
+This is important to locate the force field in the correct path.
+
+
 ## After the school: Installing the SSCHA on your personal computer
 
 If you want to run production runs of the SSCHA, you can install them in your personal computer.
