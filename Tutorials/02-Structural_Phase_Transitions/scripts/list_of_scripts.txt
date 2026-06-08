@@ -38,7 +38,7 @@
 
     hessian dispersion for a list of temperatures
 
-- extract_and_plotsoft_mode_hessian_vs_sscha.p
+- extract_and_plotsoft_mode_hessian_vs_sscha.py
 
     extract optical freq of sscha and hessian. Store in a file and plot.
 
