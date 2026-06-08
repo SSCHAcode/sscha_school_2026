@@ -1,0 +1,49 @@
+- plot_harm.py
+
+    harmonic dispersion
+
+- relax.py
+
+    relax sscha at a certain temperature
+
+- plot_harm_sscha.py
+
+    harmonic and SSCHA dispersion at a certain temperature
+
+- relax_temp_list.py
+
+    relax sscha for a list of temperatures
+
+- hessian_T0_N256.py
+
+    hessian for a certain temperature
+
+- plot_sscha_hessian.py
+
+    sscha and free energy hessian for a certain temperature
+
+- hessian_converg_nconf.py
+
+    hessian at a certain temperature for several number of configurations
+
+- plot_hess_opt_vs_nconf.py
+
+    optical hessian freq. vs n configurations
+
+- hessian_temp_list.py
+
+    hessian for a list of temperatures
+
+- plot_hessian_vs_temp.py
+
+    hessian dispersion for a list of temperatures
+
+- extract_and_plotsoft_mode_hessian_vs_sscha.p
+
+    extract optical freq of sscha and hessian. Store in a file and plot.
+
+- plot_and_fit_hessian_opt.py
+
+    reads optical freq and squared freq of hessian and make fits to estimate temp.
+
+
