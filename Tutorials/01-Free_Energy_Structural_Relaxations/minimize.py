@@ -1,4 +1,8 @@
-import sys,os
+from __future__ import print_function
+from __future__ import division
+import sys ,os
+
+import warnings
 
 # Import cellconstructor needed things
 import cellconstructor as CC
@@ -19,6 +23,12 @@ import numpy as np
 
 # NumPy moved ComplexWarning in newer versions. This block keeps the script
 # compatible with both older and newer NumPy releases.
+try:
+    ComplexWarning = np.exceptions.ComplexWarning
+except AttributeError:
+    ComplexWarning = np.ComplexWarning
+
+warnings.filterwarnings("ignore", category=ComplexWarning)
 
 #----------------------------------------------
 # We set up the parameters for the calculation
@@ -73,4 +83,3 @@ minimizer.run(custom_function_post = ioinfo.CFP_SaveAll)
 minimizer.finalize()
 namefile='dyn_end_population'+str(POPULATION)+'_'
 minimizer.dyn.save_qe(namefile)
-
