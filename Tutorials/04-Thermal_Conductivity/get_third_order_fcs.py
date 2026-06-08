@@ -96,7 +96,7 @@ def get_bulk_modulus(dyn, pot):
     return B / kJ * 1.0e24
 
 # Input files and calculation settings. Adjust these paths for your machine.
-src = "/home/dangic/Documents/Posters_and_talks/SSCHA_school_2026/sscha_school_2026/Materials/"
+src = "~/sscha_school_2026/Materials/"
 structure_name = "CsPbI3_cubic_phase.scf"
 pot = Potential(param_filename=src + "GAP_1.xml", calc_args="local_gap_variance")
 supercell = [2, 2, 2]
