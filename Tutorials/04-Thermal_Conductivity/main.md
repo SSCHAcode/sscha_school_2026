@@ -559,7 +559,38 @@ tc.write_lineshape(
 
 Temperature-dependent transport properties, such as phonon lifetimes, heat capacities, and phonon lineshapes, are stored as dictionaries with keys corresponding to the temperature `T` formatted as `format(T, ".1f")`. The example above writes the phonon spectral function at $\Gamma$.
 
-Other relevant quantities, such as phonon frequencies and group velocities, can also be accessed from the `ThermalConductivity` object. In addition, the object provides built-in functions for calculating the phonon density of states, phonon spectral conductivity, and phonon Grüneisen parameters in cubic systems
+Other relevant quantities, such as phonon frequencies and group velocities, can also be accessed from the `ThermalConductivity` object. In addition, the object provides built-in functions for calculating the phonon density of states, phonon spectral conductivity, and phonon Grüneisen parameters in cubic systems.
+
+Finally, one can translate SSCHA force constants to phonopy format with this simple script:
+```python
+import numpy as np
+import cellconstructor as CC
+import cellconstructor.Phonons
+import cellconstructor.ForceTensor
+import cellconstructor.ThermalConductivity
+from phonopy import Phonopy
+from phonopy.structure.atoms import PhonopyAtoms
+import phono3py
+
+dyn_prefix = './final_dyn'
+nqirr = 4
+
+dyn = CC.Phonons.Phonons(dyn_prefix, nqirr)
+
+supercell_matrix = dyn.GetSupercell()
+fc3 = CC.ForceTensor.Tensor3(dyn.structure, dyn.structure.generate_supercell(supercell_matrix), supercell_matrix)
+d3 = np.load("./d3.npy")
+fc3.SetupFromTensor(d3)
+
+unitcell = PhonopyAtoms(symbols=dyn.structure.atoms, cell=dyn.structure.unit_cell, positions=dyn.structure.coords)
+phonon = Phonopy(unitcell, dyn.GetSupercell(), primitive_matrix = np.eye(3).tolist())
+tensor2 = CC.ForceTensor.Tensor2(dyn.structure, dyn.structure.generate_supercell(dyn.GetSupercell()), dyn.GetSupercell())
+tensor2.SetupFromPhonons(dyn)
+phonon.force_constants = CC.Methods.tensor2_to_phonopy_fc2(tensor2, phonon)
+force_constants_3rd_order = CC.Methods.tensor3_to_phonopy_fc3(fc3, phonon)
+phono3py = phono3py.Phono3py(unitcell, supercell_matrix, primitive_matrix = np.eye(3).tolist(), make_r0_average=False)
+
+```
 
 ## Exercise
 
