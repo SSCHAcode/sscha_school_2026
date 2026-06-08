@@ -44,6 +44,6 @@
 
 - plot_and_fit_hessian_opt.py
 
-    reads optical freq and squared freq of hessian and make fits to estimate temp.
+    reads optical freq and squared freq of hessian and make fits to estimate critical temp.
 
 
