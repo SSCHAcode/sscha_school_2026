@@ -56,7 +56,7 @@ tc = CC.ThermalConductivity.ThermalConductivity(
     fc3,
     kpoint_grid=mesh,
     scattering_grid=mesh,
-    smearing_scale=None,
+    smearing_scale=1.0,
     smearing_type="adaptive",
     cp_mode="quantum",
     off_diag=True,
