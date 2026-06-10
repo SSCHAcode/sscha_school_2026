@@ -57,7 +57,7 @@ tc.write_harmonic_properties_to_file()
 
 # Converge the Green-Kubo calculation with respect to the number of frequency
 # points used to integrate overlaps of phonon spectral functions.
-ne = 6000
+ne = 2000
 
 tc.calculate_kappa(
     mode="GK",
