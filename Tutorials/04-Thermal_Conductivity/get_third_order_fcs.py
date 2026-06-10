@@ -103,10 +103,10 @@ supercell = [2, 2, 2]
 dyn_filename = 'sscha_auxiliary_dyn_'
 # SSCHA relaxation settings.
 temperature = 300.0
-nconf = 500
+nconf = 500               # Number of configurations for SSCHA minimization
 max_pop = 1000
 relax = False
-numconf = 2000
+numconf = 1000            # Number of configurations for calculating 3rd order
 
 # Generate the initial auxiliary dynamical matrix and the bulk modulus.
 if(dyn_filename is None):
