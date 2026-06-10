@@ -11,7 +11,7 @@ import cellconstructor.ThermalConductivity
 
 # Use the dynamical matrix and third-order force constants obtained with
 # 10000 configurations.
-dyn_prefix = "final_dyn_2000_"
+dyn_prefix = "final_dyn_1000_"
 nqirr = 4
 
 # Useful conversion factors.
@@ -28,7 +28,7 @@ fc3 = CC.ForceTensor.Tensor3(
     dyn.structure.generate_supercell(supercell),
     supercell,
 )
-d3 = np.load("d3_2000.npy")
+d3 = np.load("d3_1000.npy")
 fc3.SetupFromTensor(d3)
 fc3 = CC.ThermalConductivity.centering_fc3(fc3)
 
